@@ -4,6 +4,7 @@ import heritage.config.Config;
 import heritage.controls.HTitleBar;
 import heritage.relationship.DPanel;
 import heritage.relationship.RelationshipPanel;
+import heritage.relationship._RelationshipPanel;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -11,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -88,13 +90,9 @@ public class HeritageUI
 	    layeredPane.add( TopPanel.create( getFrameWidth() ), 10, 1 );
 		
 	    linkedPanel = LinkedPanel.create( getFrameWidth(), getFrameHeight() );
-	    //linkedPanel.setLocation( 0, SYS_PANEL_HEIGHT + TITLE_BAR_HEIGHT );
-	    
-	   // linkedPanel.add( buildTree() );
-	    
-	    layeredPane.add( linkedPanel, 10, 1 );
+	    layeredPane.add( linkedPanel, 0, 1 );
 		
-	    layeredPane.add( UnlinkedPanel.create( getFrameWidth(), getFrameHeight() ), 0, 1 );
+	    layeredPane.add( UnlinkedPanel.create( getFrameWidth(), getFrameHeight() ), 10, 1 );
 	   		
 	  	layeredPane.add( BottomPanel.create( getFrameWidth(), getFrameHeight() ), 10, 1 );
 	}
@@ -189,9 +187,16 @@ public class HeritageUI
 		return frame;
 	}
 	
-	private DPanel buildTree( int w, int h)
+	private JPanel buildTree( int w, int h)
 	{
-		return RelationshipPanel.createPanel( w, h );	
+		JPanel treePane = new JPanel();
+		try {
+			treePane = RelationshipPanel.createPanel( w, h );
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		return treePane;
 	}
 	
 /*	private BlockTreePane buildTree2(int w, int h)

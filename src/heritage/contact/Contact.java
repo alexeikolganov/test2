@@ -101,6 +101,12 @@ public class Contact
 		this.avatar	  = gender ? MAN_NO_AVATAR : WOMAN_NO_AVATAR;
 	}
 	
+	public Contact( int id, String label )
+	{
+		this.id 	  = -1;
+		this.label	  = label;
+	}
+	
 
 	/*
 	 * Пол (true - мужской, false - женский)

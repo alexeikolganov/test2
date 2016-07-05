@@ -1,14 +1,14 @@
-θών 14, 2016 11:11:10 PM heritage.ui.HeritageUI initialize
+Jul 05, 2016 10:55:10 AM heritage.ui.HeritageUI initialize
 INFO: Application starts...
-θών 14, 2016 11:11:10 PM heritage.controls.HTitleBar <init>
+Jul 05, 2016 10:55:10 AM heritage.controls.HTitleBar <init>
 INFO: Title Bar created...
-θών 14, 2016 11:11:10 PM heritage.ui.TopPanel create
+Jul 05, 2016 10:55:10 AM heritage.ui.TopPanel create
 INFO: Menu panel is drawn...
-θών 14, 2016 11:11:10 PM heritage.ui.LinkedPanel create
+Jul 05, 2016 10:55:11 AM heritage.ui.LinkedPanel create
 INFO: Linked panel is drawn...
-θών 14, 2016 11:11:10 PM heritage.ui.UnlinkedPanel create
+Jul 05, 2016 10:55:11 AM heritage.ui.UnlinkedPanel create
 INFO: Unlinked panel is drawn...
-θών 14, 2016 11:11:10 PM heritage.ui.BottomPanel create
+Jul 05, 2016 10:55:11 AM heritage.ui.BottomPanel create
 INFO: Status bar is drawn...
-θών 14, 2016 11:11:10 PM heritage.ui.HeritageUI initialize
+Jul 05, 2016 10:55:11 AM heritage.ui.HeritageUI initialize
 INFO: ... Application started

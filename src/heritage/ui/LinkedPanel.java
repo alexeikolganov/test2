@@ -2,12 +2,13 @@ package heritage.ui;
 
 import heritage.config.ApplicationColors;
 import heritage.config.Config;
-import heritage.relationship.DPanel;
 import heritage.relationship.RelationshipPanel;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 
 public class LinkedPanel 
 {
@@ -16,7 +17,7 @@ public class LinkedPanel
 		
 	private static Logger log = Logger.getLogger(LinkedPanel.class.getName());
 	
-	public static DPanel create( int frameWidth, int frameHeight )
+	public static JPanel create( int frameWidth, int frameHeight )
 	{
 		int x = 0;
 		int y = SYS_PANEL_HEIGHT + TITLE_BAR_HEIGHT;
@@ -26,7 +27,13 @@ public class LinkedPanel
 				( SYS_PANEL_HEIGHT ) - 		// высота верхней панели с отступами
 				( SYS_PANEL_HEIGHT );		// высота нижней панели с отступами
 				
-		DPanel linkedPanel = RelationshipPanel.createPanel( w, h ); //new JPanel( );
+		JPanel linkedPanel = null;
+		try {
+			linkedPanel = RelationshipPanel.createPanel( w, h );
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} //new JPanel( );
 		linkedPanel.setBounds( x, y, w, h );
 		linkedPanel.setBackground( ApplicationColors.LINKED_PANEL_BACKGROUND_COLOR );
 		linkedPanel.setBorder( BorderFactory.createMatteBorder( 0, 1, 0, 1, ApplicationColors.FIELD_BORDER_UNFOCUSED ) );
