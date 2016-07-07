@@ -4,14 +4,12 @@ import heritage.config.ApplicationColors;
 import heritage.config.Config;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.FocusEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -58,8 +56,6 @@ public class HTextField extends JTextField
 		setSize( FIELD_WIDTH, FIELD_HEIGHT );
 		setPreferredSize( new Dimension( FIELD_WIDTH, FIELD_HEIGHT ) );
 		setForeground( ApplicationColors.FIELD_FOREGROUND_UNSELECTED_COLOR );
-		
-		
 	}
 	
 	 @Override
@@ -73,28 +69,17 @@ public class HTextField extends JTextField
 		 Border empty = new EmptyBorder( 0, PADDING, 0, PADDING );
 		 CompoundBorder border = new CompoundBorder( line, empty );
 		 setBorder( border );
-		 
-		 // если есть подсказка выделенного поля, определяем ее состояние
-		 Color labelColor = ( this.hasFocus() ) ? ApplicationColors.FIELD_SELECTION_HINT_COLOR : null;
-		 boolean isOpaque = ( this.hasFocus() ) ? true : false;
-		 Component c = this.getParent().getComponents()[0];
-		 if( c instanceof JLabel )
-		 {
-			 JLabel labelFor = (JLabel) this.getParent().getComponents()[0];
-			 labelFor.setOpaque( isOpaque );
-			 labelFor.setBackground( labelColor );
-		 }
-		 
+		 	 
 		 if( defaultText != null )
 		 { 
 			 if( this.hasFocus() )
 			 {
 				 if( this.getText().equals( defaultText ) )
-				 {
-					 setForeground( ApplicationColors.FIELD_FOREGROUND_SELECTED_COLOR );
-					 setFont( new Font( TEXT_FONT_NAME, Font.PLAIN, TEXT_FONT_SIZE ) );
+				 {	
 					 setText( "" ); 
 				 }
+				 setForeground( ApplicationColors.FIELD_FOREGROUND_SELECTED_COLOR );
+				 setFont( new Font( TEXT_FONT_NAME, Font.PLAIN, TEXT_FONT_SIZE ) );
 			 }
 			 else
 			 { 
@@ -104,13 +89,14 @@ public class HTextField extends JTextField
 					 setFont( new Font( TEXT_FONT_NAME, Font.ITALIC, TEXT_FONT_SIZE ) );
 					 this.setText( defaultText );
 				 }
-			 }
+			 } 
 		}
 		else
 		{
 			setForeground( ApplicationColors.FIELD_FOREGROUND_SELECTED_COLOR );
 			setFont( new Font( TEXT_FONT_NAME, Font.PLAIN, TEXT_FONT_SIZE ) );
 		}
+		 
 		this.repaint( );
 	}
 	 

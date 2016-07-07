@@ -27,7 +27,7 @@ public class RelationshipPanel
 	private static final int MARGIN		 			= Integer.parseInt( Config.getItem( "block_margin" ) );
 	public final static int BORDER_WIDTH = 2;
 	
-	public final static int Y_START = BLOCK_HEIGHT * 3 + MARGIN * 2;//HEIGHT / 2;
+	public final static int Y_START = BLOCK_HEIGHT * 2 + MARGIN * 3;//HEIGHT / 2;
 	
 	private static int N0 = -1;
 
@@ -225,7 +225,7 @@ public class RelationshipPanel
 		double middleX = contact.x + BLOCK_WIDTH + MARGIN + ( spouse.leftLineX1 - contact.rightLineX2 ) / 2; // middle point between spouses
 				
 		double start =  middleX - ( BLOCK_WIDTH + MARGIN ) * ( maxPerRow ) / 2 + MARGIN / 2;
-		int y = Y_START + BLOCK_HEIGHT * 2 + MARGIN * 2;
+		int y = Y_START + BLOCK_HEIGHT + MARGIN ;
 		
 		for( int i=0;i<rows * maxPerRow;i++ )
 		{	

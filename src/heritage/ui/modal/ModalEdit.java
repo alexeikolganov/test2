@@ -17,16 +17,16 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import heritage.config.Config;
 import heritage.contact.Contact;
+import heritage.controls.HOptionPane;
 import heritage.controls.HToggleButton;
 import heritage.controls.buttons.HButtonDelete;
 import heritage.controls.buttons.HButtonSubmit;
+import heritage.controls.inputs.DatePicker;
 import heritage.controls.inputs.HCheckBox;
-import heritage.controls.inputs.HComboBox;
 import heritage.controls.inputs.HTextArea;
 import heritage.controls.inputs.HTextField;
 
@@ -69,14 +69,10 @@ public class ModalEdit extends Modal
 	private HTextField nationalityField;
 	
 	private HTextField placeOfBirthField;
-	private HTextField dayOfBirthField;
-	private HTextField yearOfBirthField;
-	private HComboBox monthOfBirth;
+	private DatePicker dateOfBirth;
 	
 	private HTextField placeOfDeathField;
-	private HTextField dayOfDeathField;
-	private HTextField yearOfDeathField;
-	private HComboBox monthOfDeath;
+	private DatePicker dateOfDeath;
 	
 	private HToggleButton gender;
 	private HCheckBox dead;
@@ -498,24 +494,8 @@ public class ModalEdit extends Modal
 	 */
 	private void buildDateOfBirth( int x, int y, int labelWidth, int dayYearWidth, int monthWidth )
 	{
-		mainPanel.add( ModalComponents.buildLabel( x * 2, y, labelWidth, FIELD_HEIGHT, Config.getItem( "default_date_birth" ) ), true );
-		if( contact.dateOfBirth.isEmpty() )
-		{
-			dayOfBirthField = new HTextField( Config.getItem( "default_day" ) );	
-			monthOfBirth = new HComboBox( months, 0 );
-			yearOfBirthField = new HTextField( Config.getItem( "default_year" ) );
-		}
-		else
-		{
-			String[] date = contact.dateOfBirth.split( "/" );
-			dayOfBirthField = new HTextField( Config.getItem( "default_day" ), date[0] );	
-			monthOfBirth = new HComboBox( months, Integer.parseInt( date[1] ) );
-			yearOfBirthField = new HTextField( Config.getItem( "default_year" ), date[2] );
-		}
-			
-		mainPanel.add( ModalComponents.buildTextField( labelWidth + x, y, dayYearWidth, FIELD_HEIGHT, dayOfBirthField, true ) );
-		mainPanel.add( ModalComponents.buildComboBox( labelWidth + x + dayYearWidth, y, monthWidth, FIELD_HEIGHT, monthOfBirth, false ) );	
-		mainPanel.add( ModalComponents.buildTextField( labelWidth + x + dayYearWidth + monthWidth, y, dayYearWidth, FIELD_HEIGHT, yearOfBirthField, false ) );
+		dateOfBirth = new DatePicker( Config.getItem( "default_date_birth" ), contact.dateOfBirth );		
+		mainPanel.add( ModalComponents.buildDatePicker( x, y, FIELD_WIDTH, FIELD_HEIGHT, dateOfBirth, true ) );
 	}
 	
 	/**
@@ -529,15 +509,14 @@ public class ModalEdit extends Modal
 		mainPanel.add( ModalComponents.buildLabel( x * 2, y, labelWidth, FIELD_HEIGHT, Config.getItem( "default_dead" ) ) );
 		
 		dead = ModalComponents.buildCheckBox( labelWidth + x, y, FIELD_HEIGHT, FIELD_HEIGHT );
+		System.out.println(contact.isDead);
 		dead.setSelected( contact.isDead );
 		dead.addItemListener(new ItemListener() 
 		{
 		    public void itemStateChanged( ItemEvent ev ) 
 		    {
 		    	HCheckBox checkbox = (HCheckBox)ev.getSource();
-		    	dayOfDeathField.setVisible( checkbox.isSelected() );
-		    	monthOfDeath.setVisible( checkbox.isSelected() );
-		    	yearOfDeathField.setVisible( checkbox.isSelected() );
+		    	dateOfDeath.setVisible( checkbox.isSelected() );
 		    	placeOfDeathField.setVisible( checkbox.isSelected() );
 		    }
 		});
@@ -554,27 +533,9 @@ public class ModalEdit extends Modal
 	 */
 	private void buildDateOfDeath( int x, int y, int labelWidth, int dayYearWidth, int monthWidth )
 	{
-		if( contact.dateOfDeath.isEmpty() )
-		{
-			dayOfDeathField = new HTextField( Config.getItem( "default_day" ) );	
-			monthOfDeath = new HComboBox( months, 0 );
-			yearOfDeathField = new HTextField( Config.getItem( "default_year" ) );
-		}
-		else
-		{
-			String[] date = contact.dateOfDeath.split( "/" );
-			dayOfDeathField = new HTextField( Config.getItem( "default_day" ), date[0] );	
-			monthOfDeath = new HComboBox( months, Integer.parseInt( date[1] ) );
-			yearOfDeathField = new HTextField( Config.getItem( "default_year" ), date[2] );
-		}
-		dayOfDeathField.setVisible( dead.isSelected() );
-		mainPanel.add( ModalComponents.buildTextField( labelWidth + x + FIELD_HEIGHT, y, dayYearWidth, FIELD_HEIGHT, dayOfDeathField, true ) );
-
-		monthOfDeath.setVisible( dead.isSelected() );
-		mainPanel.add( ModalComponents.buildComboBox( labelWidth + x + dayYearWidth + FIELD_HEIGHT, y, monthWidth, FIELD_HEIGHT, monthOfDeath, false ) );
-		
-		yearOfDeathField.setVisible( dead.isSelected() );
-		mainPanel.add( ModalComponents.buildTextField( labelWidth + x + dayYearWidth + monthWidth + FIELD_HEIGHT, y, dayYearWidth, FIELD_HEIGHT, yearOfDeathField, false ) );
+		dateOfDeath = new DatePicker( Config.getItem( "default_date_death" ), contact.dateOfDeath );		
+		dateOfDeath.setVisible( dead.isSelected() );
+		mainPanel.add( ModalComponents.buildDatePicker( labelWidth + x + FIELD_HEIGHT, y, FIELD_WIDTH - (labelWidth + FIELD_HEIGHT), FIELD_HEIGHT, dateOfDeath, true ) );
 	}
 	
 	/**
@@ -675,17 +636,8 @@ public class ModalEdit extends Modal
 			{
 				if( fieldsChanged() )
 				{
-					Object[] options = { "Да", "Нет" };
-					int dialogResult = JOptionPane.showOptionDialog(null ,
-												"Закрыть, не сохраняя внесенные изменения?",
-												"Внимание",
-											    JOptionPane.YES_NO_OPTION,
-											    JOptionPane.QUESTION_MESSAGE,
-											    null,     //do not use a custom Icon
-											    options,  //the titles of buttons
-											    options[0]); //default button title
-					
-					if( dialogResult == JOptionPane.YES_OPTION )
+					HOptionPane pane = new HOptionPane( null, "Warning", "Are you sure you want to close the window? All the changes will be lost", HOptionPane.OptionType.OK_CANCEL );
+					if(pane.status == HOptionPane.Status.OK )
 					{
 						dialog.dispose();
 					}
@@ -759,16 +711,14 @@ public class ModalEdit extends Modal
 			return true;
 		}
 		
-		String dob = dayOfBirthField.getText().replaceAll( Config.getItem( "default_day" ), "" ) + "/" + monthOfBirth.getSelectedIndex() + "/" + yearOfBirthField.getText().replaceAll( Config.getItem( "default_year" ), "" );
-		System.out.println( "8. " + ( !dob.equals( "/0/" ) && !contact.dateOfBirth.equals( dob ) ) );
-		if( !dob.equals( "/0/" ) && !contact.dateOfBirth.equals( dob ) )
+		System.out.println( "8. " + !contact.dateOfBirth.equals( dateOfBirth.getText().replaceAll( Config.getItem( "default_date_birth" ), "" ) ) );
+		if( !contact.dateOfBirth.equals( dateOfBirth.getText().replaceAll( Config.getItem( "default_date_birth" ), "" ) ) )
 		{
 			return true;
 		}
 
-		String dod = dayOfDeathField.getText().replaceAll( Config.getItem( "default_day" ), "" ) + "/" + monthOfDeath.getSelectedIndex() + "/" + yearOfDeathField.getText().replaceAll( Config.getItem( "default_year" ), "" );
-		System.out.println( "9. " + ( !dod.equals( "/0/" ) && !contact.dateOfDeath.equals( dob ) ) );
-		if( !dod.equals( "/0/" ) && !contact.dateOfDeath.equals( dod ) )
+		System.out.println( "9. " + !contact.dateOfDeath.equals( dateOfDeath.getText().replaceAll( Config.getItem( "default_date_death" ), "" ) ) );
+		if( !contact.dateOfDeath.equals( dateOfDeath.getText().replaceAll( Config.getItem( "default_date_death" ), "" ) ) )
 		{
 			return true;
 		}

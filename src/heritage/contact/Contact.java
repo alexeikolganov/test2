@@ -34,7 +34,7 @@ public class Contact
 	public String nationality	 	= "";
 	public String status		 	= "";
 	public String label		 		= ""; // используется для блоков "Добавить отца/мать"
-	public boolean isDead			= true; 
+	public boolean isDead			= false; 
 	public String notes				= "";
 	public String lifeline			= "";
 	

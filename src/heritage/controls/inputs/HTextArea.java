@@ -4,13 +4,11 @@ import heritage.config.ApplicationColors;
 import heritage.config.Config;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.FocusEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
@@ -27,7 +25,6 @@ public class HTextArea extends JTextArea
 	private final int BORDER_THICKNESS				= Integer.parseInt( Config.getItem( "border_thickness" ) );
 	private final int PADDING 						= 8;
 	private final String TEXT_FONT_NAME				= Config.getItem( "app_font_name" );
-	private final Color SELECTION_HINT_COLOR 		= new Color( 150, 150, 150 );
 	
 	public HTextArea()
 	{
@@ -77,18 +74,6 @@ public class HTextArea extends JTextArea
 		 Border empty = new EmptyBorder( PADDING, PADDING, PADDING, PADDING );
 		 setBorder( empty );
 
-		 // если есть подсказка выделенного поля, определяем ее состояние
-		 Color labelColor = ( this.hasFocus() ) ? SELECTION_HINT_COLOR : null;
-		 boolean isOpaque = ( this.hasFocus() ) ? true : false;
-		 Component c = scroll.getParent().getComponents()[0];
-		 
-		 if( c instanceof JLabel )
-		 {
-			 JLabel labelFor = (JLabel) scroll.getParent().getComponents()[0];
-			 labelFor.setOpaque( isOpaque );
-			 labelFor.setBackground( labelColor );
-		 }
-		 
 		 if( defaultText != null )
 		 { 
 			 if( this.hasFocus() )
