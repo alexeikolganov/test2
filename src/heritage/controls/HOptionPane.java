@@ -19,11 +19,11 @@ public class HOptionPane extends HDialog
 {
 
 	private static final long serialVersionUID 	= 5466259953203242190L;
-	private static int WIDTH  			= 300;
-	private static int HEIGHT 			= 160;
+	private static int WIDTH  					= 300;
+	private static int HEIGHT 					= 140;
 	private final int TITLE_BAR_HEIGHT 			= Integer.parseInt( Config.getItem( "title_bar_height" ) );
 	private final int BORDER_THICKNESS			= Integer.parseInt( Config.getItem( "border_thickness" ) );
-	private final int TEXT_FONT_SIZE			= 16;//Integer.parseInt( Config.getItem( "text_font_size" ) );
+	private final int TEXT_FONT_SIZE			= Integer.parseInt( Config.getItem( "text_font_size" ) );
 	private final String TEXT_FONT_NAME			= Config.getItem( "app_font_name" );
 	
 	private JPanel boxPanel;

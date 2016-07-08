@@ -1,43 +1,16 @@
-Jul 05, 2016 10:52:46 AM heritage.ui.HeritageUI initialize
+Jul 08, 2016 10:20:30 AM heritage.ui.HeritageUI initialize
 INFO: Application starts...
-Jul 05, 2016 10:52:46 AM heritage.controls.HTitleBar <init>
+Jul 08, 2016 10:20:30 AM heritage.controls.HTitleBar <init>
 INFO: Title Bar created...
-Jul 05, 2016 10:52:46 AM heritage.ui.TopPanel create
+Jul 08, 2016 10:20:30 AM heritage.ui.TopPanel create
 INFO: Menu panel is drawn...
-Jul 05, 2016 10:52:46 AM heritage.sql.Sqlite getContacts
-SEVERE: Failed to get contacts from DB using 'SELECT contact_id, contact_name FROM contacts JOIN contact_reln ON contacts.contact_id = contact_reln.object_contact_id AND contact_reln.subject_contact_id = 1 AND contact_reln.lookup_id IN ( 5, 6 ) JOIN contact_reln spouse_reln ON contacts.contact_id = spouse_reln.object_contact_id AND spouse_reln.subject_contact_id = 2 AND spouse_reln.lookup_id IN ( 5, 6 )': 
-java.sql.SQLException: no such column: 'contact_surname'
-	at org.sqlite.jdbc3.JDBC3ResultSet.findColumn(JDBC3ResultSet.java:54)
-	at org.sqlite.jdbc3.JDBC3ResultSet.getString(JDBC3ResultSet.java:448)
-	at heritage.sql.Sqlite.getContacts(Sqlite.java:113)
-	at heritage.relationship.Relation.getCommonChildren(Relation.java:66)
-	at heritage.relationship.RelationshipPanel.drawCommonChildren(RelationshipPanel.java:218)
-	at heritage.relationship.RelationshipPanel.createPanel(RelationshipPanel.java:89)
-	at heritage.ui.LinkedPanel.create(LinkedPanel.java:32)
-	at heritage.ui.HeritageUI.createSections(HeritageUI.java:92)
-	at heritage.ui.HeritageUI.initialize(HeritageUI.java:301)
-	at heritage.ui.HeritageUI.<init>(HeritageUI.java:289)
-	at heritage.ui.HeritageUI$1.run(HeritageUI.java:275)
-	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
-	at java.awt.EventQueue.dispatchEventImpl(Unknown Source)
-	at java.awt.EventQueue.access$500(Unknown Source)
-	at java.awt.EventQueue$3.run(Unknown Source)
-	at java.awt.EventQueue$3.run(Unknown Source)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at java.security.ProtectionDomain$1.doIntersectionPrivilege(Unknown Source)
-	at java.awt.EventQueue.dispatchEvent(Unknown Source)
-	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
-	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
-	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
-	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
-	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
-	at java.awt.EventDispatchThread.run(Unknown Source)
-
-Jul 05, 2016 10:52:46 AM heritage.ui.LinkedPanel create
+Jul 08, 2016 10:20:31 AM heritage.ui.LinkedPanel create
 INFO: Linked panel is drawn...
-Jul 05, 2016 10:52:46 AM heritage.ui.UnlinkedPanel create
+Jul 08, 2016 10:20:31 AM heritage.ui.UnlinkedPanel create
 INFO: Unlinked panel is drawn...
-Jul 05, 2016 10:52:46 AM heritage.ui.BottomPanel create
+Jul 08, 2016 10:20:31 AM heritage.ui.BottomPanel create
 INFO: Status bar is drawn...
-Jul 05, 2016 10:52:46 AM heritage.ui.HeritageUI initialize
+Jul 08, 2016 10:20:31 AM heritage.ui.HeritageUI initialize
 INFO: ... Application started
+Jul 08, 2016 10:20:41 AM heritage.controls.HTitleBar <init>
+INFO: Title Bar created...

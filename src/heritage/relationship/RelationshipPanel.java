@@ -3,6 +3,7 @@ package heritage.relationship;
 import heritage.config.ApplicationColors;
 import heritage.config.Config;
 import heritage.contact.Contact;
+import heritage.contact.ContactRelationship;
 import heritage.controls.HScrollBar;
 import heritage.ui.block.AddContactBlock;
 import heritage.ui.block.Block;
@@ -19,6 +20,8 @@ import javax.swing.JScrollPane;
 
 public class RelationshipPanel 
 {
+	private static int selectedContactId = 1;
+	
 	private static int WIDTH  = 1400;
 	private static int HEIGHT = 800;
 	private static final int BLOCK_WIDTH  			= Integer.parseInt( Config.getItem( "block_width" ) );
@@ -59,11 +62,19 @@ public class RelationshipPanel
         scrollFrame.setHorizontalScrollBar( new HScrollBar( JScrollBar.HORIZONTAL ) );
         scrollFrame.setBounds( 0, 0, WIDTH, HEIGHT );
         mainPanel.add( scrollFrame );
+
+        drawTree();   
         
-        int selectedContact = 1;
+        //System.out.println( rightMostX + BLOCK_WIDTH + MARGIN );
+        innerPanel.setPreferredSize( new Dimension( rightMostX + BLOCK_WIDTH + MARGIN, bottomMostY ) );
         
-        // 1. Contact
-        Contact contact = Relation.getContact( selectedContact );
+        return mainPanel;
+	}
+	
+	private static void drawTree()
+	{
+		// 1. Contact
+        Contact contact = Relation.getContact( selectedContactId );
         contact.setCoordinates( getNextX( 0 ), Y_START );
         drawContact( contact );
         
@@ -71,7 +82,7 @@ public class RelationshipPanel
         drawParent( contact, 0, "F" );
         
         // 2. Spouse(s)
-        List<Contact> spouses = Relation.getSpouses(selectedContact); 
+        List<Contact> spouses = Relation.getSpouses(selectedContactId); 
         if( spouses != null )
         {
      	    for( int i=0;i<spouses.size();i++ )
@@ -95,11 +106,6 @@ public class RelationshipPanel
         spouse.setCoordinates( x, Y_START );
 	    drawContact( spouse );
 	    linkContacts( ( spouses == null ) ? contact : spouses.get(spouses.size()-1), spouse );
-        
-        //System.out.println( rightMostX + BLOCK_WIDTH + MARGIN );
-        innerPanel.setPreferredSize( new Dimension( rightMostX + BLOCK_WIDTH + MARGIN, bottomMostY ) );
-        
-        return mainPanel;
 	}
 	
 	private static int getNextX( int level )
@@ -113,6 +119,7 @@ public class RelationshipPanel
 		if( level >= -1 )
 		{
 			Contact parent;
+			ContactRelationship reln = null;
 			double x = 0;
 			if( parentGender.equals( "M" ) )
 			{
@@ -120,6 +127,7 @@ public class RelationshipPanel
 				if( parent == null )
 				{
 					parent = new Contact( -1, "Add Father" );
+					reln = new ContactRelationship( selectedContactId, parent.id, -1 );
 				}
 				x = contact.x - ( BLOCK_WIDTH + MARGIN ) * COMPRESSION_RATIO;
 				rightMostX = ( x > rightMostX ) ? (int)x : rightMostX;
@@ -130,6 +138,7 @@ public class RelationshipPanel
 				if( parent == null )
 				{
 					parent = new Contact( -1, "Add Mother" );
+					reln = new ContactRelationship( selectedContactId, parent.id, -1 );
 				}
 				x = contact.x + ( BLOCK_WIDTH + MARGIN ) * COMPRESSION_RATIO;	
 				rightMostX = ( x > rightMostX ) ? (int)x : rightMostX;
@@ -138,7 +147,7 @@ public class RelationshipPanel
 			{
 				parent.setCoordinates( x, contact.y - BLOCK_HEIGHT - MARGIN );
 				//System.out.println( parent.x + ", " + parent.y );
-			    drawContact( parent );
+			    drawContact( parent, reln );
 			    linkContacts( contact, parent );
 			    
 			    if( parent.id != -1 )
@@ -149,6 +158,18 @@ public class RelationshipPanel
 		}
 	}
 		
+	private static void drawContact( Contact contact, ContactRelationship reln )
+	{
+		if( contact.id > 0 )
+		{
+			innerPanel.add( new Block( contact, false ) );
+		}
+		else
+		{	
+			innerPanel.add( new AddContactBlock( contact, reln ) );
+		}
+	}
+	
 	private static void drawContact( Contact contact )
 	{
 		if( contact.id > 0 )
@@ -157,7 +178,7 @@ public class RelationshipPanel
 		}
 		else
 		{	
-			innerPanel.add( new AddContactBlock( contact ) );
+			innerPanel.add( new AddContactBlock( contact, null ) );
 		}
 	}
 	
@@ -282,55 +303,14 @@ public class RelationshipPanel
 		//panel.addLine( children.get(rows*maxPerRow).lineX, children.get(rows*maxPerRow).topLineY1, children.get(children.size()-1).lineX, children.get(children.size()-1).topLineY1 );
 				
 	}
-
-	/**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event dispatch thread.
-     * @throws IOException 
-     */
-    /*private static void createAndShowGUI() throws IOException {
-        
-        //Create and set up the window.
-        frame = new JFrame("Form");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //frame.setUndecorated(true);
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation( dim.width/2-frame.getSize().width/2-WIDTH/2, dim.height/2-frame.getSize().height/2-HEIGHT/2 );
-
-        addComponentsToPane2( frame.getContentPane() );
-        frame.pack();
-        frame.setVisible(true);
-    }
-    
-    public static void main(String[] args) {
-
-        try {
-            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-        } catch (UnsupportedLookAndFeelException ex) {
-            ex.printStackTrace();
-        } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
-        } catch (InstantiationException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
-        }
- 
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
-        
-        //Schedule a job for the event dispatch thread:
-        //creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                try {
-					createAndShowGUI();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            }
-        });
-    }*/
+	
+	public static void setSelectedContactId( int contactId )
+	{
+		selectedContactId = contactId;
+	}
+	
+	public static int getSelectedContact( )
+	{
+		return selectedContactId;
+	}
 }

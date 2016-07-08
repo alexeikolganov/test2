@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 
 import heritage.config.Config;
 import heritage.contact.Contact;
+import heritage.contact.ContactRelationship;
 import heritage.controls.HOptionPane;
 import heritage.controls.HToggleButton;
 import heritage.controls.buttons.HButtonDelete;
@@ -29,6 +30,7 @@ import heritage.controls.inputs.DatePicker;
 import heritage.controls.inputs.HCheckBox;
 import heritage.controls.inputs.HTextArea;
 import heritage.controls.inputs.HTextField;
+import heritage.relationship.Relation;
 
 public class ModalEdit extends Modal
 {	
@@ -82,7 +84,7 @@ public class ModalEdit extends Modal
 	private HTextArea notesField;
 	
 	private Contact contact;
-	private Contact relatedContact;
+	private ContactRelationship reln;
 	
 	private static Logger log = Logger.getLogger( ModalEdit.class.getName() );
 	
@@ -98,11 +100,11 @@ public class ModalEdit extends Modal
 		
 	}
 	
-	public ModalEdit( String title, Contact contact, Contact relatedContact ) 
+	public ModalEdit( String title, Contact contact, ContactRelationship reln ) 
 	{
 		super( title, contact );
 		this.contact = contact;
-		this.relatedContact = relatedContact;
+		this.reln 	 = reln;
 
 		getRightSection( ).add( buildMainSection() );
 		buildLeftSectionFields( );
@@ -615,11 +617,13 @@ public class ModalEdit extends Modal
 			{
 				if( contact.id == -1 )
 				{
-					System.out.println( "insert" );
+					populateContactDetails( );				
+					Relation.insertContact( contact );				
 				}
 				else
 				{
-					System.out.println( "update" );
+					populateContactDetails( );				
+					Relation.updateContact( contact );	
 				}
 			}
 			
@@ -732,6 +736,35 @@ public class ModalEdit extends Modal
 		{
 			return true;
 		}
+		System.out.println( "12. " + !contact.lifeline.equals( lifeTimeField.getText().replaceAll( Config.getItem( "default_lifetime" ), "" ) ) );
+		if( !contact.lifeline.equals( lifeTimeField.getText().replaceAll( Config.getItem( "default_lifetime" ), "" ) ) )
+		{
+			return true;
+		}
+		System.out.println( "13. " + !contact.notes.equals( notesField.getText().replaceAll( Config.getItem( "default_notes" ), "" ) ) );
+		if( !contact.notes.equals( notesField.getText().replaceAll( Config.getItem( "default_notes" ), "" ) ) )
+		{
+			return true;
+		}
 		return false;
+	}
+	
+	private void populateContactDetails( )
+	{
+		contact.firstName 		= firstNameField.getText().replaceAll( Config.getItem( "default_name" ), "" );
+		contact.lastName  		= surnameField.getText().replaceAll( Config.getItem( "default_surname" ), "" );
+		contact.gender    		= !gender.isSelected();
+		contact.maidenName 		= maidenNameField.getText().replaceAll( Config.getItem( "default_maiden_name" ), "" );
+		contact.nationality 	= nationalityField.getText().replaceAll( Config.getItem( "default_nationality" ), "" );
+		contact.placeOfLiving 	= placeOfLivingField.getText().replaceAll( Config.getItem( "default_place_of_living" ), "" );
+		contact.placeOfBirth 	= placeOfBirthField.getText().replaceAll( Config.getItem( "default_place_birth" ), "" );
+		contact.dateOfBirth 	= dateOfBirth.getText().replaceAll( Config.getItem( "default_date_birth" ), "" );
+		contact.dateOfDeath 	= dateOfDeath.getText().replaceAll( Config.getItem( "default_name" ), "" );
+		contact.placeOfDeath 	= placeOfDeathField.getText().replaceAll( Config.getItem( "default_place_death" ), "" );
+		contact.isDead 			= dead.isSelected();
+		contact.lifeline 		= lifeTimeField.getText().replaceAll( Config.getItem( "default_lifetime" ), "" );
+		contact.notes 			= notesField.getText().replaceAll( Config.getItem( "default_notes" ), "" );
+		
+		contact.avatar			= "";
 	}
 }

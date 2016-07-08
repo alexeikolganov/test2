@@ -19,7 +19,7 @@ public class Sqlite
 	private static Connection c;
 	private static final String DB_NAME = "heritage.db";
 	
-	private static Logger log = Logger.getLogger(Sqlite.class.getName());
+	private static Logger log = Logger.getLogger( Sqlite.class.getName() );
 	
 	/**
 	 * Connect to correct DB
@@ -94,6 +94,226 @@ public class Sqlite
 		return result;
 
 	}
+
+	public static int insertContact( Contact contact )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		int contactId = -1;
+
+		try {
+			stmt = c.prepareStatement(  
+					"INSERT INTO `contacts` (" +
+					"`contact_name`," +
+					"`contact_surname`," +
+					"`contact_gender`," +
+					"`contact_date_of_birth`," +
+					"`contact_date_of_death`," +
+					"`contact_place_of_birth`," +
+					"`contact_place_of_living`," +
+					"`contact_place_of_death`," +
+					"`contact_nationality`," +
+					"`contact_is_dead`," +
+					"`contact_avatar`," +
+					"`contact_maiden_name`" +
+					") VALUES (" +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?," +
+					"?" +
+					");", Statement.RETURN_GENERATED_KEYS );
+			stmt.setString( 1,  ( contact.firstName == null ) 		? "" : contact.firstName );
+			stmt.setString( 2,  ( contact.lastName == null ) 		? "" : contact.lastName );
+			stmt.setString( 3,  ( contact.gender ) 					? "M" : "F" );
+			stmt.setString( 4,  ( contact.dateOfBirth == null ) 	? "" : contact.dateOfBirth );
+			stmt.setString( 5,  ( contact.dateOfDeath == null ) 	? "" : contact.dateOfDeath );
+			stmt.setString( 6,  ( contact.placeOfBirth == null ) 	? "" : contact.placeOfBirth );
+			stmt.setString( 7,  ( contact.placeOfLiving == null ) 	? "" : contact.placeOfLiving );
+			stmt.setString( 8,  ( contact.placeOfDeath == null ) 	? "" : contact.placeOfDeath );
+			stmt.setString( 9,  ( contact.nationality == null ) 	? "" : contact.nationality );
+			stmt.setInt( 10,    ( (contact.isDead) 					? 1 : 0 ) );
+			stmt.setString( 11, ( contact.avatar == null ) 			? "" : contact.avatar );
+			stmt.setString( 12, ( contact.maidenName == null ) 		? "" : contact.maidenName );
+
+			stmt.executeUpdate();
+			
+			try( ResultSet generatedKeys = stmt.getGeneratedKeys() ) 
+			{
+	            if( generatedKeys.next() ) 
+	            {
+	            	contactId = (int) generatedKeys.getLong(1);
+	            }
+	            else 
+	            {
+	                throw new SQLException( "Creating user failed, no ID obtained." );
+	            }
+	        }
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to insert contact into DB: ", ex );
+		}
+		disconnect();
+		
+		return contactId;
+	}
+	
+	public static void updateContact( Contact contact )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = c.prepareStatement(  
+					"UPDATE `contacts` SET " +
+					"`contact_name`= ?," +
+					"`contact_surname` = ?," +
+					"`contact_gender` = ?," +
+					"`contact_date_of_birth` = ?," +
+					"`contact_date_of_death` = ?," +
+					"`contact_place_of_birth` = ?," +
+					"`contact_place_of_living` = ?," +
+					"`contact_place_of_death` = ?," +
+					"`contact_nationality` = ?," +
+					"`contact_is_dead` = ?," +
+					"`contact_avatar` = ?," +
+					"`contact_maiden_name` = ?" +
+					" WHERE " +
+					"contact_id = ?;" );
+			stmt.setString( 1,  ( contact.firstName == null ) 		? "" : contact.firstName );
+			stmt.setString( 2,  ( contact.lastName == null ) 		? "" : contact.lastName );
+			stmt.setString( 3,  ( contact.gender ) 					? "M" : "F" );
+			stmt.setString( 4,  ( contact.dateOfBirth == null ) 	? "" : contact.dateOfBirth );
+			stmt.setString( 5,  ( contact.dateOfDeath == null ) 	? "" : contact.dateOfDeath );
+			stmt.setString( 6,  ( contact.placeOfBirth == null ) 	? "" : contact.placeOfBirth );
+			stmt.setString( 7,  ( contact.placeOfLiving == null ) 	? "" : contact.placeOfLiving );
+			stmt.setString( 8,  ( contact.placeOfDeath == null ) 	? "" : contact.placeOfDeath );
+			stmt.setString( 9,  ( contact.nationality == null ) 	? "" : contact.nationality );
+			stmt.setInt( 10,    ( (contact.isDead) 					? 1 : 0 ) );
+			stmt.setString( 11, ( contact.avatar == null ) 			? "" : contact.avatar );
+			stmt.setString( 12, ( contact.maidenName == null ) 		? "" : contact.maidenName );
+			stmt.setInt( 13,    contact.id );
+
+			stmt.executeUpdate();
+
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to update contact with ID " + contact.id + ": ", ex );
+		}
+		disconnect();
+	}
+	
+	public static void insertNote( Contact contact )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = c.prepareStatement(  
+					"INSERT INTO `notes` (" +
+					"`note_text`," +
+					"`contact_id`" +
+					") VALUES (" +
+					"?," +
+					"?" +
+					");" );
+			stmt.setString( 1, ( contact.notes == null ) 		? "" : contact.notes );
+			stmt.setInt(    2, contact.id );
+
+			stmt.executeUpdate();
+
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to insert note into DB: ", ex );
+		}
+		disconnect();
+	}
+	
+	public static void updateNote( Contact contact )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = c.prepareStatement(  
+					"UPDATE `notes` SET " +
+					"`note_text` = ?" +	
+					" WHERE " +
+					"`contact_id` = ?;" );
+			stmt.setString( 1, ( contact.notes == null ) 		? "" : contact.notes );
+			stmt.setInt(    2, contact.id );
+
+			stmt.executeUpdate();
+
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to update note for contact with ID " + contact.id +": ", ex );
+		}
+		disconnect();
+	}
+	
+	public static void insertLifeline( Contact contact )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = c.prepareStatement(  
+					"INSERT INTO `lifeline` (" +
+					"`lifeline_text`," +
+					"`contact_id`" +
+					") VALUES (" +
+					"?," +
+					"?" +
+					");" );
+			stmt.setString( 1, ( contact.lifeline == null ) 		? "" : contact.lifeline );
+			stmt.setInt(    2, contact.id );
+
+			stmt.executeUpdate();
+
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to insert lifeline into DB: ", ex );
+		}
+		disconnect();
+	}
+	
+	public static void updateLifeline( Contact contact )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = c.prepareStatement(  
+					"UPDATE `lifeline` SET " +
+					"`lifeline_text` = ?" +	
+					" WHERE " +
+					"`contact_id` = ?;" );
+			stmt.setString( 1, ( contact.notes == null ) 		? "" : contact.notes );
+			stmt.setInt(    2, contact.id );
+
+			stmt.executeUpdate();
+
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to update lifeline for contact with ID " + contact.id +": ", ex );
+		}
+		disconnect();
+	}
 	
 	public static List<Contact> getContacts( String query )
 	{
@@ -125,7 +345,7 @@ public class Sqlite
 				
 				String notes		 	= ( rs.getString( "note_text" ) == null ) ? "" : rs.getString( "note_text" );
 				String lifeline 		= ( rs.getString( "lifeline_text" ) == null ) ? "" : rs.getString( "lifeline_text" );
-
+				
 				contacts.add( new Contact( contactId, firstName, lastName, maidenName, gender, nationality, dateOfBirth, dateOfDeath, placeOfBirth, placeOfLiving, placeOfDeath, isDead, avatar, notes, lifeline ) );
 			}
 	    	rs.close();
@@ -190,11 +410,18 @@ public class Sqlite
 				String placeOfDeath 	= ( rs.getString( "contact_place_of_death" ) == null ) ? "" : rs.getString( "contact_place_of_death" );
 				
 				boolean isDead 			= ( rs.getString( "contact_is_dead" ) != null && rs.getString( "contact_is_dead" ).equals("0") ) ? false : true;
-				String avatar			= ( rs.getString( "contact_avatar" ) == null ) ? ( gender ? (Config.getItem( "icons_path" ) + "/" + Config.getItem( "no_avatar_man" )) : (Config.getItem( "icons_path" ) + "/" + Config.getItem( "no_avatar_woman" )) ) : rs.getString( "contact_avatar" );
+				String avatar			= ( rs.getString( "contact_avatar" ) == null || rs.getString( "contact_avatar" ).isEmpty() ) ? ( gender ? (Config.getItem( "icons_path" ) + "/" + Config.getItem( "no_avatar_man" )) : (Config.getItem( "icons_path" ) + "/" + Config.getItem( "no_avatar_woman" )) ) : rs.getString( "contact_avatar" );
 
 				String notes		 	= ( rs.getString( "note_text" ) == null ) ? "" : rs.getString( "note_text" );
 				String lifeline 		= ( rs.getString( "lifeline_text" ) == null ) ? "" : rs.getString( "lifeline_text" );
 				
+				if(contactId == 1) 
+				{
+				
+				System.out.println("avatar:" + (rs.getString( "contact_avatar" ) == null));
+				System.out.println("avatar:" + (rs.getString( "contact_avatar" ).isEmpty()));
+				System.out.println("avatar:" + avatar);
+				}
 				contact = new Contact( contactId, firstName, lastName, maidenName, gender, nationality, dateOfBirth, dateOfDeath, placeOfBirth, placeOfLiving, placeOfDeath, isDead, avatar, notes, lifeline );
 				
 			}

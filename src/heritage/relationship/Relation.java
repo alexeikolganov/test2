@@ -1,5 +1,6 @@
 package heritage.relationship;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import heritage.contact.Contact;
@@ -13,6 +14,21 @@ public class Relation
 		
 		return contact;
 	}
+	
+	public static void insertContact( Contact contact )
+	{
+		contact.id = Sqlite.insertContact( contact );	
+		Sqlite.insertLifeline( contact );
+		Sqlite.insertNote( contact );
+	}
+	
+	public static void updateContact( Contact contact )
+	{
+		Sqlite.updateContact( contact );	
+		Sqlite.updateLifeline( contact );
+		Sqlite.updateNote( contact );
+	}
+	
 	public static List<Contact> getCommonChildren( int contactId )
 	{
 		String query = 	"SELECT " +

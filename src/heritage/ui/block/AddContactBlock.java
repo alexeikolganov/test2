@@ -19,6 +19,7 @@ import javax.swing.Timer;
 import heritage.config.ApplicationColors;
 import heritage.config.Config;
 import heritage.contact.Contact;
+import heritage.contact.ContactRelationship;
 import heritage.listener.ClickListener;
 import heritage.ui.modal.ModalEdit;
 
@@ -53,7 +54,7 @@ public class AddContactBlock extends JLayeredPane
 	 * 2.б. ћеню "¬ыбрать существующий контакт"
 	 * @param contact
 	 */
-	public AddContactBlock( final Contact contact )
+	public AddContactBlock( final Contact contact, final ContactRelationship reln )
 	{
 		// устанавливаем основные параметры
 		setLocation( (int)contact.x, (int)contact.y );
@@ -121,7 +122,7 @@ public class AddContactBlock extends JLayeredPane
 			private final Color ROLLOVER_COLOR 	 = new Color( 200, 200, 200 );
 			private final Color BACKGROUND_COLOR = ApplicationColors.PANEL_BACKGROUND_COLOR;
 			
-			 public void mouseEntered( MouseEvent e )
+			public void mouseEntered( MouseEvent e )
 			{
 				JComponent panel = (JComponent) e.getSource();
 				panel.setBackground( ROLLOVER_COLOR );
@@ -135,7 +136,7 @@ public class AddContactBlock extends JLayeredPane
 				
 			public void singleClick( MouseEvent e )
             {
-				final AddContactBlock block = (AddContactBlock)e.getComponent().getParent().getParent();
+				/*final AddContactBlock block = (AddContactBlock)e.getComponent().getParent().getParent();
 				if( block.menuPanel.getHeight()> 0 )
 				 {
 					timer = new Timer( 1, new ActionListener() 
@@ -154,7 +155,8 @@ public class AddContactBlock extends JLayeredPane
 						}
 			         });
 					 timer.start(); 
-				 }
+				 }*/
+				new ModalEdit( contact.firstName + " " + contact.lastName, contact, reln );
             }
 
             public void doubleClick( MouseEvent e )
@@ -175,9 +177,7 @@ public class AddContactBlock extends JLayeredPane
 		addExistingLbl.setForeground( ApplicationColors.APP_TEXT_COLOR);
 		addExistingLbl.setOpaque( true );
 		menuPanel.add( addExistingLbl );
-				
-		
-		
+
 	}
 	
 	

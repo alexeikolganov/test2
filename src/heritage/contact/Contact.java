@@ -127,7 +127,7 @@ public class Contact
 	public ImageIcon getAvatar( )
 	{
 		String imagePath = this.avatar;
-		System.out.println(avatar);
+		
 		if( this.avatar.isEmpty() )
 		{
 			imagePath = isMasculine( ) ? MAN_NO_AVATAR : WOMAN_NO_AVATAR;

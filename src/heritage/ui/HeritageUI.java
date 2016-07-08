@@ -2,9 +2,6 @@ package heritage.ui;
 import heritage.config.ApplicationColors;
 import heritage.config.Config;
 import heritage.controls.HTitleBar;
-import heritage.relationship.DPanel;
-import heritage.relationship.RelationshipPanel;
-import heritage.relationship._RelationshipPanel;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -12,7 +9,6 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -186,80 +182,7 @@ public class HeritageUI
 	{
 		return frame;
 	}
-	
-	private JPanel buildTree( int w, int h)
-	{
-		JPanel treePane = new JPanel();
-		try {
-			treePane = RelationshipPanel.createPanel( w, h );
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		return treePane;
-	}
-	
-/*	private BlockTreePane buildTree2(int w, int h)
-	{
-		String[] details = { "icons/man_128.png", "name1", "surname", "place", "10/10/1900", "husband" };
-		Block block1 = new Block( new Contact("1"), false );
-	   
-	    String[] details2 = { "icons/woman_128.png", "name2", "surname (maiden)", "place", "10/11/1850", "grandmother" };
-	    JPanel block2 =  new Block( new Contact("1"), false );
-	    
-	    String[] details3 = { "icons/man_128.png", "name3", "surname", "place", "10/10/1900", "husband" };
-	    JPanel block3 =  new Block( new Contact("1"), false );
-	    
-	    String[] details4 = { "icons/woman_128.png", "name4", "surname (maiden)", "place", "10/11/1850", "grandmother" };
-	    JPanel block4 =  new Block( new Contact("1"), false );
-	    
-	    String[] details5 = { "icons/man_128.png", "name5", "surname", "place", "10/10/1900", "husband" };
-	    JPanel block5 =  new Block( new Contact("1"), false );
-	    
-	    String[] details6 = { "icons/man_128.png", "name6", "surname", "place", "10/10/1900", "husband" };
-	    JPanel block6 =  new Block( new Contact("1"), false );
-	    
-	    String[] details7 = { "icons/woman_128.png", "name7", "surname (maiden)", "place", "10/11/1850", "grandmother" };
-	    JPanel block7 =  new Block( new Contact("1"), false );
-	    
-	    DefaultTreeForTreeLayout<JPanel> tree = new DefaultTreeForTreeLayout<JPanel>(block1);
-	   
-	    tree.addChild(block1, block2);
-	    tree.addChild(block1, block5);
-	    
-	    tree.addChild(block2, block3);	    
-	    tree.addChild(block2, block6);
-	    
-	    tree.addChild(block1, block7);
-	    
-	    tree.addChild(block6, block4);
-	    
-	    
-	    
-	    //TreeForTreeLayout<TextInBox> tree = SampleTreeFactory.createSampleTree();
-	            
-        // setup the tree layout configuration
-        double gapBetweenLevels = 20;
-        double gapBetweenNodes = 20;
-        DefaultConfiguration<JPanel> configuration = new DefaultConfiguration<JPanel>(
-                        gapBetweenLevels, gapBetweenNodes);
 
-        // create the NodeExtentProvider for TextInBox nodes
-        BlockNodeExtentProvider nodeExtentProvider = new BlockNodeExtentProvider();
-
-        // create the layout
-        TreeLayout<JPanel> treeLayout = new TreeLayout<JPanel>(tree,
-                        nodeExtentProvider, configuration);
-
-        // Create a panel that draws the nodes and edges and show the panel
-        BlockTreePane panel = new BlockTreePane(treeLayout);
-        panel.setBounds(9,9, 1200, 700 );
-        
-        //System.out.println( panel );
-	    
-	    return panel;
-	}
-*/
 	/**
 	 * Launch the application.
 	 */
