@@ -31,6 +31,7 @@ import heritage.controls.inputs.HCheckBox;
 import heritage.controls.inputs.HTextArea;
 import heritage.controls.inputs.HTextField;
 import heritage.relationship.Relation;
+import heritage.relationship.RelationshipPanel;
 
 public class ModalEdit extends Modal
 {	
@@ -84,7 +85,7 @@ public class ModalEdit extends Modal
 	private HTextArea notesField;
 	
 	private Contact contact;
-	private ContactRelationship reln;
+	private ContactRelationship[] reln;
 	
 	private static Logger log = Logger.getLogger( ModalEdit.class.getName() );
 	
@@ -100,7 +101,7 @@ public class ModalEdit extends Modal
 		
 	}
 	
-	public ModalEdit( String title, Contact contact, ContactRelationship reln ) 
+	public ModalEdit( String title, Contact contact, ContactRelationship[] reln ) 
 	{
 		super( title, contact );
 		this.contact = contact;
@@ -618,7 +619,16 @@ public class ModalEdit extends Modal
 				if( contact.id == -1 )
 				{
 					populateContactDetails( );				
-					Relation.insertContact( contact );				
+					contact.id = Relation.insertContact( contact );
+					
+					if( reln != null )
+					{
+						for( ContactRelationship relationship : reln )
+						{
+							relationship.subjectContactId = contact.id;
+							Relation.insertRelationship( relationship );
+						}
+					}
 				}
 				else
 				{
@@ -641,14 +651,16 @@ public class ModalEdit extends Modal
 				if( fieldsChanged() )
 				{
 					HOptionPane pane = new HOptionPane( null, "Warning", "Are you sure you want to close the window? All the changes will be lost", HOptionPane.OptionType.OK_CANCEL );
-					if(pane.status == HOptionPane.Status.OK )
+					if( pane.status == HOptionPane.Status.OK )
 					{
 						dialog.dispose();
+						RelationshipPanel.drawTree( );
 					}
 				}
 				else
 				{
 					dialog.dispose();
+					RelationshipPanel.drawTree( );
 				}
 			}
 			
@@ -659,6 +671,36 @@ public class ModalEdit extends Modal
 						
 		HButtonSubmit submit = new HButtonSubmit( Config.getItem( "label_save" ) );
 		submit.setBounds( xPos, y, buttonW, buttonH );
+		submit.addActionListener( new ActionListener() 
+		{
+			public void actionPerformed( ActionEvent ev ) 		
+			{
+				if( contact.id == -1 )
+				{
+					populateContactDetails( );				
+					contact.id = Relation.insertContact( contact );
+					
+					if( reln != null )
+					{
+						for( ContactRelationship relationship : reln )
+						{
+							relationship.subjectContactId = contact.id;
+							Relation.insertRelationship( relationship );
+						}
+					}
+					dialog.dispose();
+					RelationshipPanel.drawTree( );
+				}
+				else
+				{
+					populateContactDetails( );				
+					Relation.updateContact( contact );	
+					dialog.dispose();
+					RelationshipPanel.drawTree( );
+				}
+			}
+			
+		});
 		mainPanel.add( submit );
 	}
 	

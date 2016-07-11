@@ -1,14 +1,16 @@
-Jul 08, 2016 10:26:19 AM heritage.ui.HeritageUI initialize
+Jul 11, 2016 12:08:48 PM heritage.ui.HeritageUI initialize
 INFO: Application starts...
-Jul 08, 2016 10:26:19 AM heritage.controls.HTitleBar <init>
+Jul 11, 2016 12:08:48 PM heritage.controls.HTitleBar <init>
 INFO: Title Bar created...
-Jul 08, 2016 10:26:19 AM heritage.ui.TopPanel create
+Jul 11, 2016 12:08:48 PM heritage.ui.TopPanel create
 INFO: Menu panel is drawn...
-Jul 08, 2016 10:26:19 AM heritage.ui.LinkedPanel create
+Jul 11, 2016 12:08:48 PM heritage.ui.LinkedPanel create
 INFO: Linked panel is drawn...
-Jul 08, 2016 10:26:19 AM heritage.ui.UnlinkedPanel create
+Jul 11, 2016 12:08:48 PM heritage.ui.UnlinkedPanel create
 INFO: Unlinked panel is drawn...
-Jul 08, 2016 10:26:19 AM heritage.ui.BottomPanel create
+Jul 11, 2016 12:08:48 PM heritage.ui.BottomPanel create
 INFO: Status bar is drawn...
-Jul 08, 2016 10:26:19 AM heritage.ui.HeritageUI initialize
+Jul 11, 2016 12:08:48 PM heritage.ui.HeritageUI initialize
 INFO: ... Application started
+Jul 11, 2016 12:08:51 PM heritage.controls.HTitleBar <init>
+INFO: Title Bar created...

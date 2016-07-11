@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import heritage.config.Config;
 import heritage.contact.Contact;
+import heritage.contact.ContactRelationship;
 
 /**
  * Connect to SQLite
@@ -311,6 +312,40 @@ public class Sqlite
 		catch( SQLException ex ) 
 		{
 			log.log( Level.SEVERE, "Failed to update lifeline for contact with ID " + contact.id +": ", ex );
+		}
+		disconnect();
+	}
+	
+	public static void insertRelationship( ContactRelationship reln )
+	{
+		connect();
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = c.prepareStatement(  
+					"INSERT INTO contact_reln (" +
+							"subject_contact_id," +
+							"object_contact_id," +
+							"lookup_id" +
+							") VALUES (" +
+							"?," +
+							"?," +
+							"( SELECT lookup_id " +
+							"  FROM lookup " +
+							"  WHERE lookup_level = ? " +
+							"  AND lookup_gender = (SELECT contact_gender FROM contacts WHERE contact_id = ? ) )" +
+							");" );
+			stmt.setInt( 1, reln.objectContactId );
+			stmt.setInt( 2, reln.subjectContactId );
+			stmt.setInt( 3, reln.lookupLevel );
+			stmt.setInt( 4, reln.subjectContactId );
+
+			stmt.executeUpdate();
+
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to insert note into DB: ", ex );
 		}
 		disconnect();
 	}

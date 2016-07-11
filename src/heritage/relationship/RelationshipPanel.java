@@ -35,27 +35,28 @@ public class RelationshipPanel
 	private static int N0 = -1;
 
 	private static JPanel innerPanel;
+	private static JPanel mainPanel;
+	private static JScrollPane scrollFrame;
 	
 	private static int rightMostX  = 0;
 	private static int bottomMostY = Y_START + BLOCK_HEIGHT + MARGIN;
 	
-	private static final double COMPRESSION_RATIO = 0.5;
+	private static final double COMPRESSION_RATIO = 1;
 	
 	public static JPanel createPanel( int width, int height ) throws IOException 
 	{
 		WIDTH  = width-4;
 		HEIGHT = height;
 		
-		JPanel mainPanel = new JPanel();
+		mainPanel = new JPanel();
 		mainPanel.setPreferredSize( new Dimension( WIDTH, HEIGHT ) );
 		mainPanel.setLayout( null );
 		
 		innerPanel = new JPanel( );
-		//innerPanel.setPreferredSize( new Dimension( WIDTH, HEIGHT ) );
 		innerPanel.setBackground( ApplicationColors.LINKED_PANEL_BACKGROUND_COLOR );
         innerPanel.setLayout( null );
 
-        JScrollPane scrollFrame = new JScrollPane( innerPanel );
+        scrollFrame = new JScrollPane( innerPanel );
         scrollFrame.setBorder( null );
         scrollFrame.setPreferredSize( new Dimension( WIDTH, HEIGHT ) );
         scrollFrame.setVerticalScrollBar( new HScrollBar( JScrollBar.VERTICAL ) );
@@ -65,14 +66,14 @@ public class RelationshipPanel
 
         drawTree();   
         
-        //System.out.println( rightMostX + BLOCK_WIDTH + MARGIN );
-        innerPanel.setPreferredSize( new Dimension( rightMostX + BLOCK_WIDTH + MARGIN, bottomMostY ) );
         
         return mainPanel;
 	}
 	
-	private static void drawTree()
+	public static void drawTree( )
 	{
+		resetPanel();
+		
 		// 1. Contact
         Contact contact = Relation.getContact( selectedContactId );
         contact.setCoordinates( getNextX( 0 ), Y_START );
@@ -82,7 +83,7 @@ public class RelationshipPanel
         drawParent( contact, 0, "F" );
         
         // 2. Spouse(s)
-        List<Contact> spouses = Relation.getSpouses(selectedContactId); 
+        List<Contact> spouses = Relation.getSpouses( selectedContactId ); 
         if( spouses != null )
         {
      	    for( int i=0;i<spouses.size();i++ )
@@ -92,44 +93,63 @@ public class RelationshipPanel
      	    	spouses.get(i).setCoordinates( x, Y_START );
 	 	        drawContact( spouses.get(i) );
 	 	        
-	 	        linkContacts( ( i==0 ) ? contact : spouses.get(i-1), spouses.get(i) );
+	 	        linkContacts( ( i==0 ) ? contact : spouses.get( i-1 ), spouses.get(i) );
 	 	        
 	 	        drawParent( spouses.get(i), 0, "M" );
 	 	        drawParent( spouses.get(i), 0, "F" );
 	 	        
-	 	       drawCommonChildren( ( i==0 ) ? contact : spouses.get(i-1), spouses.get(i) );
+	 	        drawCommonChildren( ( i==0 ) ? contact : spouses.get( i-1 ), spouses.get(i) );
      	    } 
         }
         int x = rightMostX + BLOCK_WIDTH + MARGIN;
         rightMostX = x;
+        
+        System.out.println("rightMostX"+rightMostX);
+        // "add spouse" widget
         Contact spouse = new Contact( -1, "Add Spouse" );
         spouse.setCoordinates( x, Y_START );
-	    drawContact( spouse );
-	    linkContacts( ( spouses == null ) ? contact : spouses.get(spouses.size()-1), spouse );
+        
+        ContactRelationship[] reln = new ContactRelationship[1];
+        reln[0] = new ContactRelationship( selectedContactId, spouse.id, 0 ); 
+	    drawContact( spouse, reln );
+	    
+	    linkContacts( ( spouses == null || spouses.size() == 0 ) ? contact : spouses.get(spouses.size()-1), spouse );
+	    
+	    scrollFrame.setViewportView(innerPanel);	    
+	    innerPanel.setPreferredSize( new Dimension( rightMostX + BLOCK_WIDTH + MARGIN, bottomMostY ) );
 	}
 	
 	private static int getNextX( int level )
 	{
-		return (int) ( ( ( BLOCK_WIDTH + MARGIN ) * 2 + ( BLOCK_WIDTH + MARGIN ) * 6 * ++N0 ) * COMPRESSION_RATIO + MARGIN );
-		
+		//return (int) ( ( ( BLOCK_WIDTH + MARGIN ) * 2 + ( BLOCK_WIDTH + MARGIN ) * 6 * ++N0 ) * COMPRESSION_RATIO + MARGIN );	
+		return (int) ( ( ( BLOCK_WIDTH + MARGIN ) * 1.5 + ( BLOCK_WIDTH + MARGIN ) * 4 * ++N0 ) * COMPRESSION_RATIO + MARGIN );
 	}
 	
 	private static void drawParent( Contact contact, int level, String parentGender )
 	{
+		// offset between levels
+		// levels = 2: 0=1, -1=0.5
+		// levels = 3: 0=2, -1=1, -2=0.5
+		// levels = 4: 0=4, -1=2, -2=1, -3=0.5
+		// ...
+		double[] offsets = { 1, 0.5 };
+		
 		if( level >= -1 )
 		{
 			Contact parent;
-			ContactRelationship reln = null;
+			ContactRelationship[] reln = new ContactRelationship[1];
 			double x = 0;
+			
+			String contraGender = parentGender.equals( "M" ) ? "F" : "M";
 			if( parentGender.equals( "M" ) )
 			{
 				parent = Relation.getFather( contact.id );
 				if( parent == null )
 				{
 					parent = new Contact( -1, "Add Father" );
-					reln = new ContactRelationship( selectedContactId, parent.id, -1 );
+					reln[0] = new ContactRelationship( contact.id, parent.id, -1 );
 				}
-				x = contact.x - ( BLOCK_WIDTH + MARGIN ) * COMPRESSION_RATIO;
+				x = contact.x - ( BLOCK_WIDTH + MARGIN ) * offsets[Math.abs(level)] * COMPRESSION_RATIO;
 				rightMostX = ( x > rightMostX ) ? (int)x : rightMostX;
 			}
 			else
@@ -138,9 +158,9 @@ public class RelationshipPanel
 				if( parent == null )
 				{
 					parent = new Contact( -1, "Add Mother" );
-					reln = new ContactRelationship( selectedContactId, parent.id, -1 );
+					reln[0] = new ContactRelationship( contact.id, parent.id, -1 );
 				}
-				x = contact.x + ( BLOCK_WIDTH + MARGIN ) * COMPRESSION_RATIO;	
+				x = contact.x + ( BLOCK_WIDTH + MARGIN ) * offsets[Math.abs(level)] * COMPRESSION_RATIO;	
 				rightMostX = ( x > rightMostX ) ? (int)x : rightMostX;
 			}
 			if( parent != null )
@@ -153,12 +173,13 @@ public class RelationshipPanel
 			    if( parent.id != -1 )
 			    {
 			    	drawParent( parent, level - 1, parentGender );
+			    	drawParent( parent, level - 1, contraGender );
 			    }
 			}
 		}
 	}
 		
-	private static void drawContact( Contact contact, ContactRelationship reln )
+	private static void drawContact( Contact contact, ContactRelationship[] reln )
 	{
 		if( contact.id > 0 )
 		{
@@ -251,7 +272,19 @@ public class RelationshipPanel
 		for( int i=0;i<rows * maxPerRow;i++ )
 		{	
 			children.get(i).setCoordinates( start, y );
-		    drawContact( children.get(i) );   
+
+			if( children.get(i).id > 0 )
+			{
+				drawContact( children.get(i) );  
+			}
+			else
+			{
+				// "add contact" widget
+				ContactRelationship[] reln = new ContactRelationship[2];
+				reln[0] = new ContactRelationship( contact.id, children.get(i).id, 1 );
+				reln[1] = new ContactRelationship( spouse.id, children.get(i).id, 1 );
+				drawContact( children.get(i), reln );  
+			}
 		    
 		    drawLine( middleX, contact.lineY, middleX, y - MARGIN / 2 );
 		    drawLine( children.get(i).lineX, children.get(i).topLineY1, children.get(i).lineX, children.get(i).topLineY2 );
@@ -279,7 +312,19 @@ public class RelationshipPanel
 			for( int i=rows*maxPerRow;i<children.size();i++ )
 			{
 				children.get(i).setCoordinates( start, y );
-			    drawContact( children.get(i) );  
+			   
+				if( children.get(i).id > 0 )
+				{
+					drawContact( children.get(i) );  
+				}
+				else
+				{
+					// "add contact" widget
+					ContactRelationship[] reln = new ContactRelationship[2];
+					reln[0] = new ContactRelationship( contact.id, children.get(i).id, 1 );
+					reln[1] = new ContactRelationship( spouse.id, children.get(i).id, 1 );
+					drawContact( children.get(i), reln );  
+				}
 			    
 				drawLine( middleX, contact.lineY, middleX, y - MARGIN / 2 );
 			    drawLine( children.get(i).lineX, children.get(i).topLineY1, children.get(i).lineX, children.get(i).topLineY2 );
@@ -297,11 +342,7 @@ public class RelationshipPanel
 			    start += MARGIN + BLOCK_WIDTH;
 			}
 		}
-		bottomMostY = ( y > bottomMostY ) ? ( y + MARGIN + BLOCK_HEIGHT ) : bottomMostY;
-		
-		//panel.addLine( contact.rightLineX2, contact.lineY, contact.rightLineX2, y - MARGIN / 2 );
-		//panel.addLine( children.get(rows*maxPerRow).lineX, children.get(rows*maxPerRow).topLineY1, children.get(children.size()-1).lineX, children.get(children.size()-1).topLineY1 );
-				
+		bottomMostY = ( y > bottomMostY ) ? ( y + MARGIN + BLOCK_HEIGHT ) : bottomMostY;		
 	}
 	
 	public static void setSelectedContactId( int contactId )
@@ -312,5 +353,15 @@ public class RelationshipPanel
 	public static int getSelectedContact( )
 	{
 		return selectedContactId;
+	}
+	
+	public static void resetPanel()
+	{
+		rightMostX  = 0;
+		bottomMostY = Y_START + BLOCK_HEIGHT + MARGIN;
+		N0 			= -1;		
+		innerPanel.removeAll();
+		innerPanel.revalidate();
+	    innerPanel.repaint();
 	}
 }

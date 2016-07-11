@@ -54,7 +54,7 @@ public class AddContactBlock extends JLayeredPane
 	 * 2.б. ћеню "¬ыбрать существующий контакт"
 	 * @param contact
 	 */
-	public AddContactBlock( final Contact contact, final ContactRelationship reln )
+	public AddContactBlock( final Contact contact, final ContactRelationship[] reln )
 	{
 		// устанавливаем основные параметры
 		setLocation( (int)contact.x, (int)contact.y );

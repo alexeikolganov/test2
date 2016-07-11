@@ -1,9 +1,9 @@
 package heritage.relationship;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import heritage.contact.Contact;
+import heritage.contact.ContactRelationship;
 import heritage.sql.Sqlite;
 
 public class Relation 
@@ -15,11 +15,12 @@ public class Relation
 		return contact;
 	}
 	
-	public static void insertContact( Contact contact )
+	public static int insertContact( Contact contact )
 	{
-		contact.id = Sqlite.insertContact( contact );	
+		int id = Sqlite.insertContact( contact );	
 		Sqlite.insertLifeline( contact );
 		Sqlite.insertNote( contact );
+		return id;
 	}
 	
 	public static void updateContact( Contact contact )
@@ -27,6 +28,18 @@ public class Relation
 		Sqlite.updateContact( contact );	
 		Sqlite.updateLifeline( contact );
 		Sqlite.updateNote( contact );
+	}
+	
+	public static void insertRelationship( ContactRelationship reln )
+	{
+		// direct relationship
+		Sqlite.insertRelationship( reln );	
+		// inverse relationship
+		int temp 				= reln.objectContactId;
+		reln.objectContactId 	= reln.subjectContactId;
+		reln.subjectContactId 	= temp;
+		reln.lookupLevel 		*= -1;
+		Sqlite.insertRelationship( reln );	
 	}
 	
 	public static List<Contact> getCommonChildren( int contactId )
@@ -105,40 +118,40 @@ public class Relation
 	
 	public static Contact getSpouse( int contactId )
 	{
-		return getRelatedContact( contactId, 3 );
+		return getRelatedContact( contactId, "3, 11" );
 	}
 	
 	public static List<Contact> getSpouses( int contactId )
 	{
-		return getRelatedContacts( contactId, 3 );
+		return getRelatedContacts( contactId, "3, 11" );
 	}
 	
 	public static Contact getMother( int contactId )
 	{		
-		return getRelatedContact( contactId, 1 );
+		return getRelatedContact( contactId, "1" );
 	}
 	public static Contact getFather( int contactId )
 	{		
-		Contact contact = getRelatedContact( contactId, 2 );
+		Contact contact = getRelatedContact( contactId, "2" );
 		return contact;
 	}
 	
-	private static Contact getRelatedContact( int contactId, int lookupId )
+	private static Contact getRelatedContact( int contactId, String lookupIds )
 	{
-		String query = prepareQuery( contactId, lookupId );	
+		String query = prepareQuery( contactId, lookupIds );	
 		
 		List<Contact> contacts = Sqlite.getContacts( query );
 		return ( contacts.size() > 0 ) ? contacts.get( 0 ) : null;
 	}
 	
-	private static List<Contact> getRelatedContacts( int contactId, int lookupId )
+	private static List<Contact> getRelatedContacts( int contactId, String lookupIds )
 	{
-		String query = prepareQuery( contactId, lookupId );		
+		String query = prepareQuery( contactId, lookupIds );	
 		List<Contact> contacts = Sqlite.getContacts( query );
 		return contacts;
 	}
 	
-	private static String prepareQuery( int contactId, int lookupId )
+	private static String prepareQuery( int contactId, String lookupIds )
 	{
 		return "SELECT " +
 				"contacts.contact_id, " +
@@ -166,7 +179,7 @@ public class Relation
 				"JOIN lookup " + 
 				"ON contact_reln.lookup_id = lookup.lookup_id " + 
 				"AND contact_reln.subject_contact_id = " + contactId + " " +
-				"AND contact_reln.lookup_id = " + lookupId + ";";
+				"AND contact_reln.lookup_id IN ( " + lookupIds + " );";
 	}
 
 }
