@@ -55,7 +55,7 @@ public class ModalEdit extends Modal
 	private final Color LEFT_SECTION_COLOR_WOMAN 	= new Color( 245, 169, 188 );
 	private final Color MAIN_SECTION_COLOR 			= Color.white;
 	
-	String[] months = { "-" + Config.getItem( "default_month" ) + "-", "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
+	//String[] months = { "-" + Config.getItem( "default_month" ) + "-", "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
 	
 	// левая секция
 	private JLabel firstName;
@@ -650,7 +650,7 @@ public class ModalEdit extends Modal
 			{
 				if( fieldsChanged() )
 				{
-					HOptionPane pane = new HOptionPane( null, "Warning", "Are you sure you want to close the window? All the changes will be lost", HOptionPane.OptionType.OK_CANCEL );
+					HOptionPane pane = new HOptionPane( null, Config.getItem( "warning" ), Config.getItem( "warning_close_modal" ), HOptionPane.OptionType.OK_CANCEL );
 					if( pane.status == HOptionPane.Status.OK )
 					{
 						dialog.dispose();
@@ -801,7 +801,7 @@ public class ModalEdit extends Modal
 		contact.placeOfLiving 	= placeOfLivingField.getText().replaceAll( Config.getItem( "default_place_of_living" ), "" );
 		contact.placeOfBirth 	= placeOfBirthField.getText().replaceAll( Config.getItem( "default_place_birth" ), "" );
 		contact.dateOfBirth 	= dateOfBirth.getText().replaceAll( Config.getItem( "default_date_birth" ), "" );
-		contact.dateOfDeath 	= dateOfDeath.getText().replaceAll( Config.getItem( "default_name" ), "" );
+		contact.dateOfDeath 	= dateOfDeath.getText().replaceAll( Config.getItem( "default_date_death" ), "" );
 		contact.placeOfDeath 	= placeOfDeathField.getText().replaceAll( Config.getItem( "default_place_death" ), "" );
 		contact.isDead 			= dead.isSelected();
 		contact.lifeline 		= lifeTimeField.getText().replaceAll( Config.getItem( "default_lifetime" ), "" );

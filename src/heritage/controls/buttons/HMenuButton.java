@@ -83,7 +83,7 @@ public class HMenuButton extends JButton
 	public Dimension getPreferredSize( ) 
 	{
 	    Dimension size = super.getPreferredSize();
-	    size.setSize( 100, 20 );
+	    size.setSize( 40, 40 );
 	    return size;
 	}
 	

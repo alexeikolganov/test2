@@ -2,6 +2,7 @@ package heritage.contact;
 
 import heritage.config.Config;
 import heritage.ui.GalleryBlock;
+import heritage.ui.block.Block;
 
 import javax.swing.ImageIcon;
 
@@ -12,8 +13,9 @@ import javax.swing.ImageIcon;
  */
 public class Contact 
 {
-	private static final int BLOCK_WIDTH  			= Integer.parseInt( Config.getItem( "block_width" ) );
-	private static final int BLOCK_HEIGHT 			= Integer.parseInt( Config.getItem( "block_height" ) );
+	private static final int BLOCK_WIDTH  			= Block.BLOCK_WIDTH;
+	private static final int BLOCK_HEIGHT 			= Block.BLOCK_HEIGHT;
+	private static final int BLOCK_MAX_HEIGHT 		= Block.BLOCK_MAX_HEIGHT;
 	private static final int MARGIN		 			= Integer.parseInt( Config.getItem( "block_margin" ) );
 	
 	private final String PHOTO_PATH 		= Config.getItem( "photos_path" ) + "/";
@@ -34,7 +36,8 @@ public class Contact
 	public String nationality	 	= "";
 	public String status		 	= "";
 	public String label		 		= ""; // используется для блоков "Добавить отца/мать"
-	public boolean isDead			= false; 
+	public boolean isDead			= false;
+	public boolean isPrimary		= false;
 	public String notes				= "";
 	public String lifeline			= "";
 	
@@ -75,6 +78,48 @@ public class Contact
 					String lifeline
 					)
 	{
+		this( id, firstName, lastName, maidenName, gender, nationality, dateOfBirth, dateOfDeath, placeOfBirth, placeOfLiving, placeOfDeath, isDead, avatar, notes, lifeline, "", false );
+	}
+	public Contact( int id, 
+			String firstName, 
+			String lastName, 
+			String maidenName, 
+			boolean gender, 
+			String nationality, 
+			String dateOfBirth, 
+			String dateOfDeath,
+			String placeOfBirth,
+			String placeOfLiving,
+			String placeOfDeath,
+			boolean isDead,
+			String avatar,
+			String notes,
+			String lifeline,
+			String status
+			)
+	{
+		this( id, firstName, lastName, maidenName, gender, nationality, dateOfBirth, dateOfDeath, placeOfBirth, placeOfLiving, placeOfDeath, isDead, avatar, notes, lifeline, status, false );
+	}
+	
+	public Contact( int id, 
+			String firstName, 
+			String lastName, 
+			String maidenName, 
+			boolean gender, 
+			String nationality, 
+			String dateOfBirth, 
+			String dateOfDeath,
+			String placeOfBirth,
+			String placeOfLiving,
+			String placeOfDeath,
+			boolean isDead,
+			String avatar,
+			String notes,
+			String lifeline,
+			String status,
+			boolean isPrimary
+			)
+	{
 		this.id 			= id;
 		this.firstName 		= firstName;
 		this.lastName 		= lastName;
@@ -90,20 +135,21 @@ public class Contact
 		this.avatar			= avatar;
 		this.notes			= notes;
 		this.lifeline		= lifeline;
+		this.status			= status;
+		this.isPrimary		= isPrimary;
 	}
 	
-	public Contact( String label, String lastName, boolean gender )
+	public Contact( String label, boolean gender )
 	{
 		this.id 	  = -1;
 		this.label	  = label;
-		this.lastName = lastName;
 		this.gender	  = gender;
 		this.avatar	  = gender ? MAN_NO_AVATAR : WOMAN_NO_AVATAR;
 	}
 	
 	public Contact( int id, String label )
 	{
-		this.id 	  = -1;
+		this.id 	  = id;
 		this.label	  = label;
 	}
 	
@@ -159,7 +205,7 @@ public class Contact
 		this.x 			 	= x;
 		this.y 			 	= y;
 		this.lineX 		 	= this.x + BLOCK_WIDTH / 2;
-		this.lineY 		 	= this.y + BLOCK_HEIGHT / 2;
+		this.lineY 		 	= this.y + BLOCK_MAX_HEIGHT / 2;
 		this.leftLineX1  	= this.x - MARGIN / 2;
 		this.leftLineX2  	= this.x;
 		this.rightLineX1 	= this.x + BLOCK_WIDTH;
@@ -167,7 +213,7 @@ public class Contact
 		this.topLineY1   	= this.y - MARGIN / 2;
 		this.topLineY2   	= this.y;
 		this.bottomLineY1   = this.y + BLOCK_HEIGHT;
-		this.bottomLineY2   = this.y + BLOCK_HEIGHT + MARGIN / 2;
+		this.bottomLineY2   = this.y + BLOCK_MAX_HEIGHT + MARGIN / 2;
 	}
 	
 }

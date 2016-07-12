@@ -5,8 +5,6 @@ import heritage.config.Config;
 import heritage.contact.Contact;
 import heritage.controls.buttons.HMenuButton;
 import heritage.ui.modal.ModalEdit;
-import heritage.ui.modal.Modal;
-import heritage.ui.modal.ReadOnlyModal;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -66,42 +64,13 @@ public class TopPanel
 		{
 			public void actionPerformed( ActionEvent ev ) 		
 			{
-				Contact temp = new Contact( "", "", true );
+				Contact temp = new Contact( "", true );
 				new ModalEdit( BUTTON_LABEL, temp );				
 			}
 			
 		});
 		
 		topPanel.add( newAccountButton, 10 );
-		
-		HMenuButton newAccountButton2 = new HMenuButton( "read-only", "icons/plus_15.png" );
-		newAccountButton2.setBounds( 200, 0, 150, SYS_PANEL_HEIGHT );
-			
-		newAccountButton2.addActionListener( new ActionListener() 
-		{
-			public void actionPerformed( ActionEvent ev ) 		
-			{
-				new ReadOnlyModal( BUTTON_LABEL );				
-			}
-			
-		});
-		
-		topPanel.add( newAccountButton2, 10 );
-		
-		HMenuButton newAccountButton3 = new HMenuButton( "abstract", "icons/plus_15.png" );
-		newAccountButton3.setBounds( 400, 0, 150, SYS_PANEL_HEIGHT );
-			
-		newAccountButton3.addActionListener( new ActionListener() 
-		{
-			public void actionPerformed( ActionEvent ev ) 		
-			{
-				Contact temp = new Contact( "", "", true );
-				new Modal( BUTTON_LABEL, temp );				
-			}
-			
-		});
-		
-		topPanel.add( newAccountButton3, 10 );
 	}
 	
 	private static void createUnlinkedContactsButton( final int frameWidth )

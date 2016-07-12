@@ -10,17 +10,33 @@ public class Relation
 {	
 	public static Contact getContact( int contactId )
 	{
-		Contact contact = Sqlite.getSelectedContact( contactId );
-		
+		String query =  "SELECT " +
+						getFieldSet( ) +
+						"WHERE contacts.contact_id = " + contactId + ";";
+		Contact contact = Sqlite.getSelectedContact( query );	
 		return contact;
+	}
+	
+	public static int getPrimaryContact( )
+	{
+		String query =  "SELECT " +
+						getFieldSet( ) +
+						"WHERE contacts.contact_is_primary = 1;";
+		Contact contact = Sqlite.getSelectedContact( query );	
+		return contact.id;
+	}
+	
+	public static void setPrimaryContact( Contact contact )
+	{
+		Sqlite.setPrimaryContact( contact );	
 	}
 	
 	public static int insertContact( Contact contact )
 	{
-		int id = Sqlite.insertContact( contact );	
+		contact.id = Sqlite.insertContact( contact );	
 		Sqlite.insertLifeline( contact );
 		Sqlite.insertNote( contact );
-		return id;
+		return contact.id;
 	}
 	
 	public static void updateContact( Contact contact )
@@ -28,6 +44,12 @@ public class Relation
 		Sqlite.updateContact( contact );	
 		Sqlite.updateLifeline( contact );
 		Sqlite.updateNote( contact );
+	}
+	
+	public static void deleteContact( Contact contact )
+	{
+		Sqlite.deleteContact( contact );
+		deleteRelationship( contact );
 	}
 	
 	public static void insertRelationship( ContactRelationship reln )
@@ -42,66 +64,16 @@ public class Relation
 		Sqlite.insertRelationship( reln );	
 	}
 	
-	public static List<Contact> getCommonChildren( int contactId )
+	public static void deleteRelationship( Contact contact )
 	{
-		String query = 	"SELECT " +
-						"contacts.contact_id, " +
-						"contacts.contact_name, " +
-						"contacts.contact_surname, " +
-						"contacts.contact_maiden_name, " +
-						"contacts.contact_gender, " +
-						"contacts.contact_nationality, " +
-						"contacts.contact_date_of_birth, " +
-						"contacts.contact_date_of_death, " +
-						"contacts.contact_place_of_birth, " +
-						"contacts.contact_place_of_living, " +
-						"contacts.contact_place_of_death, " +
-						"contacts.contact_is_dead, " +
-						"contacts.contact_avatar,  " +
-						"notes.note_text,  " +
-						"lifeline.lifeline_text  " +
-						"FROM contacts " +
-						"LEFT JOIN notes " +
-						"ON contacts.contact_id = notes.contact_id " +
-						"LEFT JOIN lifeline " +
-						"ON contacts.contact_id = lifeline.contact_id " +
-						"JOIN contact_reln " +
-						"ON contacts.contact_id = contact_reln.object_contact_id " +
-						"AND contact_reln.subject_contact_id = " + contactId + " " +
-						"AND contact_reln.lookup_id IN ( 5, 6 ) " +
-						"JOIN contact_reln spouse_reln " +
-						"ON contacts.contact_id = spouse_reln.object_contact_id " +
-						"AND spouse_reln.subject_contact_id = ( SELECT  object_contact_id FROM contact_reln WHERE subject_contact_id = " + contactId + " AND contact_reln.lookup_id = 3 LIMIT 1 ) " +
-						"AND spouse_reln.lookup_id IN ( 5, 6 )";
-		
-		List<Contact> contacts = Sqlite.getContacts( query );
-		
-		return contacts;
+		Sqlite.deleteRelationship( contact );
 	}
-	
+		
 	public static List<Contact> getCommonChildren( int contactId, int spouseContactId )
 	{
 		String query = 	"SELECT " +
-						"contacts.contact_id, " +
-						"contacts.contact_name, " +
-						"contacts.contact_surname, " +
-						"contacts.contact_maiden_name, " +
-						"contacts.contact_gender, " +
-						"contacts.contact_nationality, " +
-						"contacts.contact_date_of_birth, " +
-						"contacts.contact_date_of_death, " +
-						"contacts.contact_place_of_birth, " +
-						"contacts.contact_place_of_living, " +
-						"contacts.contact_place_of_death, " +
-						"contacts.contact_is_dead, " +
-						"contacts.contact_avatar,  " +
-						"notes.note_text,  " +
-						"lifeline.lifeline_text  " +
-						"FROM contacts " +
-						"LEFT JOIN notes " +
-						"ON contacts.contact_id = notes.contact_id " +
-						"LEFT JOIN lifeline " +
-						"ON contacts.contact_id = lifeline.contact_id " +
+						"lookup.lookup_value, " +
+						getFieldSet( ) +
 						"JOIN contact_reln " +
 						"ON contacts.contact_id = contact_reln.object_contact_id " +
 						"AND contact_reln.subject_contact_id = " + contactId + " " +
@@ -109,20 +81,18 @@ public class Relation
 						"JOIN contact_reln spouse_reln " +
 						"ON contacts.contact_id = spouse_reln.object_contact_id " +
 						"AND spouse_reln.subject_contact_id = " + spouseContactId + " " +
-						"AND spouse_reln.lookup_id IN ( 5, 6 )";
-
+						"AND spouse_reln.lookup_id IN ( 5, 6 ) " +
+						"JOIN lookup " +
+						"ON contact_reln.lookup_id = lookup.lookup_id;";
+		
 		List<Contact> contacts = Sqlite.getContacts( query );
-				
+		System.out.println( contacts.size() );	
 		return contacts;
-	}
-	
-	public static Contact getSpouse( int contactId )
-	{
-		return getRelatedContact( contactId, "3, 11" );
 	}
 	
 	public static List<Contact> getSpouses( int contactId )
 	{
+		System.out.println("getting spouses");
 		return getRelatedContacts( contactId, "3, 11" );
 	}
 	
@@ -154,7 +124,19 @@ public class Relation
 	private static String prepareQuery( int contactId, String lookupIds )
 	{
 		return "SELECT " +
-				"contacts.contact_id, " +
+				"lookup.lookup_value, " +
+				getFieldSet( ) +
+				"JOIN contact_reln " + 
+				"ON contacts.contact_id = contact_reln.object_contact_id " +
+				"JOIN lookup " + 
+				"ON contact_reln.lookup_id = lookup.lookup_id " + 
+				"AND contact_reln.subject_contact_id = " + contactId + " " +
+				"AND contact_reln.lookup_id IN ( " + lookupIds + " );";
+	}
+	
+	private static String getFieldSet( )
+	{
+		return "contacts.contact_id, " +
 				"contacts.contact_name, " +
 				"contacts.contact_surname, " +
 				"contacts.contact_maiden_name, " +
@@ -166,20 +148,15 @@ public class Relation
 				"contacts.contact_place_of_living, " +
 				"contacts.contact_place_of_death, " +
 				"contacts.contact_is_dead, " +
-				"contacts.contact_avatar,  " +
+				"contacts.contact_avatar, " +
+				"contacts.contact_is_primary, " +
 				"notes.note_text,  " +
-				"lifeline.lifeline_text  " +
+				"lifeline.lifeline_text " +			
 				"FROM contacts " + 
 				"LEFT JOIN notes " +
 				"ON contacts.contact_id = notes.contact_id " +
 				"LEFT JOIN lifeline " +
-				"ON contacts.contact_id = lifeline.contact_id " +
-				"JOIN contact_reln " + 
-				"ON contacts.contact_id = contact_reln.object_contact_id " +
-				"JOIN lookup " + 
-				"ON contact_reln.lookup_id = lookup.lookup_id " + 
-				"AND contact_reln.subject_contact_id = " + contactId + " " +
-				"AND contact_reln.lookup_id IN ( " + lookupIds + " );";
+				"ON contacts.contact_id = lifeline.contact_id ";
 	}
 
 }
