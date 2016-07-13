@@ -11,6 +11,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import heritage.controls.inputs.HTextArea;
 import heritage.controls.inputs.HTextField;
 import heritage.relationship.Relation;
 import heritage.relationship.RelationshipPanel;
+import heritage.ui.UnlinkedPanel;
 
 public class ModalEdit extends Modal
 {	
@@ -655,12 +657,14 @@ public class ModalEdit extends Modal
 					{
 						dialog.dispose();
 						RelationshipPanel.drawTree( );
+						UnlinkedPanel.drawUnlinkedContacts( );
 					}
 				}
 				else
 				{
 					dialog.dispose();
 					RelationshipPanel.drawTree( );
+					UnlinkedPanel.drawUnlinkedContacts( );
 				}
 			}
 			
@@ -687,9 +691,31 @@ public class ModalEdit extends Modal
 							relationship.subjectContactId = contact.id;
 							Relation.insertRelationship( relationship );
 						}
+						
+						// if a parent is being added
+						if( reln.length == 1 && reln[0].lookupLevel == 1 )
+						{
+							// get parent(s)
+							List<Contact> parents = Relation.getParents( reln[0].subjectContactId );	
+							// if both parents are added
+							if( parents.size() == 2 )
+							{
+								// link them as spouses
+								ContactRelationship relationship = new ContactRelationship( parents.get(0).id, parents.get(1).id, 0 );
+								Relation.insertRelationship( relationship );
+							}
+							
+						}
 					}
 					dialog.dispose();
+					
+					// if it is the very first contact, set focus to it (it has been just added)				
+					if( Relation.getContactsCount() == 1 )
+					{
+						RelationshipPanel.setSelectedContactId( contact.id );
+					}
 					RelationshipPanel.drawTree( );
+					UnlinkedPanel.drawUnlinkedContacts( );
 				}
 				else
 				{
@@ -697,6 +723,7 @@ public class ModalEdit extends Modal
 					Relation.updateContact( contact );	
 					dialog.dispose();
 					RelationshipPanel.drawTree( );
+					UnlinkedPanel.drawUnlinkedContacts( );
 				}
 			}
 			

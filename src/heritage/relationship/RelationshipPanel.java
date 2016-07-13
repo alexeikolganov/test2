@@ -50,7 +50,7 @@ public class RelationshipPanel
 		
 		mainPanel = new JPanel();
 		mainPanel.setPreferredSize( new Dimension( WIDTH, HEIGHT ) );
-		mainPanel.setLayout( null );
+		//mainPanel.setLayout( null );
 		
 		innerPanel = new JPanel( );
 		innerPanel.setBackground( ApplicationColors.LINKED_PANEL_BACKGROUND_COLOR );
@@ -72,48 +72,57 @@ public class RelationshipPanel
 	{
 		resetPanel();
 		
-		// 1. Contact
-        Contact contact = Relation.getContact( selectedContactId );
-        contact.setCoordinates( getNextX( 0 ), Y_START );
-        drawContact( contact );
-        
-        drawParent( contact, 0, "M" );
-        drawParent( contact, 0, "F" );
-        
-        // 2. Spouse(s)
-        List<Contact> spouses = Relation.getSpouses( selectedContactId ); 
-        if( spouses != null )
-        {
-     	    for( int i=0;i<spouses.size();i++ )
-     	    {     	    	
-	     	    int x = getNextX( 0 );
-	     	    rightMostX = ( x > rightMostX ) ? x : rightMostX;
-     	    	spouses.get(i).setCoordinates( x, Y_START );
-	 	        drawContact( spouses.get(i) );
-	 	        
-	 	        linkContacts( ( i==0 ) ? contact : spouses.get( i-1 ), spouses.get(i) );
-	 	        
-	 	        drawParent( spouses.get(i), 0, "M" );
-	 	        drawParent( spouses.get(i), 0, "F" );
-	 	        
-	 	        drawCommonChildren( ( i==0 ) ? contact : spouses.get( i-1 ), spouses.get(i) );
-     	    } 
-        }
-        int x = rightMostX + BLOCK_WIDTH + MARGIN;
-        rightMostX = x;
-        
-        // "add spouse" widget
-        Contact spouse = new Contact( "Add Spouse", !contact.isMasculine() );
-        spouse.setCoordinates( x, Y_START );
-        
-        ContactRelationship[] reln = new ContactRelationship[1];
-        reln[0] = new ContactRelationship( selectedContactId, spouse.id, 0 ); 
-	    drawContact( spouse, reln );
-	    
-	    linkContacts( ( spouses == null || spouses.size() == 0 ) ? contact : spouses.get(spouses.size()-1), spouse );
-	    
-	    scrollFrame.setViewportView(innerPanel);	    
-	    innerPanel.setPreferredSize( new Dimension( rightMostX + BLOCK_WIDTH + MARGIN, bottomMostY ) );
+		if( selectedContactId > 0 )
+		{
+			// 1. Contact
+	        Contact contact = Relation.getContact( selectedContactId );
+	        contact.setCoordinates( getNextX( 0 ), Y_START );
+	        drawContact( contact );
+	        
+	        drawParent( contact, 0, "M" );
+	        drawParent( contact, 0, "F" );
+	        
+	        // 2. Spouse(s)
+	        List<Contact> spouses = Relation.getSpouses( selectedContactId ); 
+	        if( spouses != null )
+	        {
+	     	    for( int i=0;i<spouses.size();i++ )
+	     	    {     	    	
+		     	    int x = getNextX( 0 );
+		     	    rightMostX = ( x > rightMostX ) ? x : rightMostX;
+	     	    	spouses.get(i).setCoordinates( x, Y_START );
+		 	        drawContact( spouses.get(i) );
+		 	        
+		 	        linkContacts( ( i==0 ) ? contact : spouses.get( i-1 ), spouses.get(i) );
+		 	        
+		 	        drawParent( spouses.get(i), 0, "M" );
+		 	        drawParent( spouses.get(i), 0, "F" );
+		 	        
+		 	        drawCommonChildren( ( i==0 ) ? contact : spouses.get( i-1 ), spouses.get(i) );
+	     	    } 
+	        }
+	        int x = rightMostX + BLOCK_WIDTH + MARGIN;
+	        rightMostX = x;
+	        
+	        // "add spouse" widget
+	        Contact spouse = new Contact( "Add Spouse", !contact.isMasculine() );
+	        spouse.setCoordinates( x, Y_START );
+	        
+	        ContactRelationship[] reln = new ContactRelationship[1];
+	        reln[0] = new ContactRelationship( selectedContactId, spouse.id, 0 ); 
+		    drawContact( spouse, reln );
+		    
+		    linkContacts( ( spouses == null || spouses.size() == 0 ) ? contact : spouses.get(spouses.size()-1), spouse );
+		    
+		    scrollFrame.setViewportView(innerPanel);	    
+		    innerPanel.setPreferredSize( new Dimension( rightMostX + BLOCK_WIDTH + MARGIN, bottomMostY ) );
+		}
+		else
+		{
+			Contact contact = new Contact( "Add Contact", true );
+			contact.setCoordinates( getNextX( 0 ), Y_START );
+	        drawContact( contact );
+		}
 	}
 	
 	private static int getNextX( int level )

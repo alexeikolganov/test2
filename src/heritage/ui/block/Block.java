@@ -8,21 +8,17 @@ import heritage.controls.buttons.HMenuButton;
 import heritage.listener.ClickListener;
 import heritage.relationship.Relation;
 import heritage.relationship.RelationshipPanel;
+import heritage.ui.UnlinkedPanel;
 import heritage.ui.modal.ModalEdit;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -68,6 +64,11 @@ public class Block extends JPanel
 	
 	private static Logger log = Logger.getLogger( Block.class.getName() );
 		
+	public Block( final Contact contact )
+	{
+		this( contact, false );	
+	}
+	
 	/**
 	 * Основной метод, стоящий блок
 	 * @param contact - объект "контакт"
@@ -83,6 +84,9 @@ public class Block extends JPanel
 		
 		setLocation( (int)contact.x, (int)contact.y );
 		setSize( new Dimension( BLOCK_WIDTH, BLOCK_HEIGHT ) );
+		setPreferredSize( new Dimension( BLOCK_WIDTH, BLOCK_HEIGHT ) );
+		setMinimumSize( new Dimension( BLOCK_WIDTH, BLOCK_HEIGHT ) );
+		setMaximumSize( new Dimension( BLOCK_WIDTH, BLOCK_HEIGHT ) );
 		setLayout( null );
 		setBackground( blockColor );
 		
@@ -145,9 +149,12 @@ public class Block extends JPanel
             
             public void singleClick( MouseEvent e )
             {
-				timer.stop();
-				RelationshipPanel.setSelectedContactId( contact.id );
-				RelationshipPanel.drawTree( );
+				if( contact.isLinked )
+				{
+	            	timer.stop();
+					RelationshipPanel.setSelectedContactId( contact.id );
+					RelationshipPanel.drawTree( );
+				}
             }	
 		});
 	}
@@ -236,138 +243,126 @@ public class Block extends JPanel
 		extendedDetails.setLayout( null );
 		extendedDetails.setBackground( ApplicationColors.BUTTON_MENU_BACKGROUND_COLOR );
 		
-		int x = BLOCK_WIDTH - BORDER_THICKNESS * 2 - ( BLOCK_BUTTON_SIZE + 4 ) * 5;
+		int buttonsNumber = ( contact.isLinked ) ? 5 : 4;
+		int x = BLOCK_WIDTH - BORDER_THICKNESS * 2 - ( BLOCK_BUTTON_SIZE + 4 ) * buttonsNumber;
 		
 		// read-only details
-		HMenuButton viewButton = new HMenuButton( );
+		HMenuButton viewButton = new HMenuButton( "", "icons/info.png" );
 		viewButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
-		try 
-		{
-			Image img = ImageIO.read( new FileInputStream("icons/info.png") );
-			Image newimg = img.getScaledInstance( BLOCK_BUTTON_SIZE, BLOCK_BUTTON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
-			viewButton.setIcon( new ImageIcon(newimg) );
-		} 
-		catch( IOException ex ) 
-		{
-			log.log( Level.SEVERE, "Failed to find 'info.png': ", ex );
-		}
 		extendedDetails.add( viewButton );
 		
 		x += BLOCK_BUTTON_SIZE + 4;
 		
 		// edit details
-		HMenuButton editButton = new HMenuButton( );
+		HMenuButton editButton = new HMenuButton( "", "icons/edit.png" );
 		editButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
-		try 
-		{
-			Image img = ImageIO.read( new FileInputStream("icons/edit.png") );
-			Image newimg = img.getScaledInstance( BLOCK_BUTTON_SIZE, BLOCK_BUTTON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
-			editButton.setIcon( new ImageIcon(newimg) );
-		} 
-		catch( IOException ex ) 
-		{
-			log.log( Level.SEVERE, "Failed to find 'edit.png': ", ex );
-		}
 		editButton.addMouseListener( new ClickListener()  
 		{  				
             public void singleClick( MouseEvent e )
             {
             	new ModalEdit( contact.firstName + " " + contact.lastName, contact );
-            }			
+            }
+            public void mouseEntered( MouseEvent e )
+            {
+				 timer.stop();
+            }		
+			public void mouseExited( MouseEvent e )
+            {
+				 timer.restart();			 
+            }
 		});
 		extendedDetails.add( editButton );
 		
 		x += BLOCK_BUTTON_SIZE + 4;
 		
 		// delete contact
-		HMenuButton deleteButton = new HMenuButton( );
+		HMenuButton deleteButton = new HMenuButton( "", "icons/delete.png" );
 		deleteButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
-		try 
-		{
-			Image img = ImageIO.read( new FileInputStream("icons/delete.png") );
-			Image newimg = img.getScaledInstance( BLOCK_BUTTON_SIZE, BLOCK_BUTTON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
-			deleteButton.setIcon( new ImageIcon(newimg) );
-		} 
-		catch( IOException ex ) 
-		{
-			log.log( Level.SEVERE, "Failed to find 'delete.png': ", ex );
-		}
 		deleteButton.addMouseListener( new ClickListener()  
 		{  				
             public void singleClick( MouseEvent e )
             {
+            	timer.stop();
             	HOptionPane pane = new HOptionPane( null, Config.getItem( "warning" ), Config.getItem( "warning_delete_contact" ), HOptionPane.OptionType.OK_CANCEL );
 				if( pane.status == HOptionPane.Status.OK )
 				{
 					Relation.deleteContact( contact );
 					RelationshipPanel.drawTree( );
+					UnlinkedPanel.drawUnlinkedContacts( );
 				}
-            }			
+				timer.restart();
+            }	
+            public void mouseEntered( MouseEvent e )
+            {
+				 timer.stop();
+            }		
+			public void mouseExited( MouseEvent e )
+            {
+				 timer.restart();			 
+            }
 		});
 		extendedDetails.add( deleteButton );
 		
 		x += BLOCK_BUTTON_SIZE + 4;
 		
 		// unlink contact
-		HMenuButton unlinkButton = new HMenuButton( );
+		HMenuButton unlinkButton = new HMenuButton( "", "icons/unlink.png" );
 		unlinkButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
-		try 
-		{
-			Image img = ImageIO.read( new FileInputStream("icons/unlink.png") );
-			Image newimg = img.getScaledInstance( BLOCK_BUTTON_SIZE, BLOCK_BUTTON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
-			unlinkButton.setIcon( new ImageIcon(newimg) );
-		} 
-		catch( IOException ex ) 
-		{
-			log.log( Level.SEVERE, "Failed to find 'unlink.png': ", ex );
-		}
 		unlinkButton.addMouseListener( new ClickListener()  
 		{  				
 			public void singleClick( MouseEvent e )
             {
-            	System.out.println(timer.isRunning());
             	timer.stop();
-            	System.out.println(timer.isRunning());
 				HOptionPane pane = new HOptionPane( null, Config.getItem( "warning" ), Config.getItem( "warning_delete_relns" ), HOptionPane.OptionType.OK_CANCEL, 300, 160 );
 				if( pane.status == HOptionPane.Status.OK )
 				{				
 					Relation.deleteRelationship( contact );
-					RelationshipPanel.drawTree( );			
+					RelationshipPanel.drawTree( );	
+					UnlinkedPanel.drawUnlinkedContacts( );
 				}
 				timer.restart();
-            }			
+            }	
+			public void mouseEntered( MouseEvent e )
+            {
+				 timer.stop();
+            }		
+			public void mouseExited( MouseEvent e )
+            {
+				 timer.restart();			 
+            }
 		});
 		extendedDetails.add( unlinkButton );
 		
-		x += BLOCK_BUTTON_SIZE + 4;
-		
-		HMenuButton pinButton = new HMenuButton( );
-		pinButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
-		try 
+		if( contact.isLinked )
 		{
-			Image img = ImageIO.read( new FileInputStream("icons/pin.png") );
-			Image newimg = img.getScaledInstance( BLOCK_BUTTON_SIZE, BLOCK_BUTTON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
-			pinButton.setIcon( new ImageIcon(newimg) );
-		} 
-		catch( IOException ex ) 
-		{
-			log.log( Level.SEVERE, "Failed to find 'pin.png': ", ex );
+			x += BLOCK_BUTTON_SIZE + 4;
+			
+			HMenuButton pinButton = new HMenuButton( "", "icons/pin.png" );
+			pinButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
+			pinButton.setEnabled( !contact.isPrimary );
+			if( pinButton.isEnabled() )
+			{
+				pinButton.addMouseListener( new ClickListener()  
+				{  				
+		            public void singleClick( MouseEvent e )
+		            {
+						RelationshipPanel.setSelectedContactId( contact.id );
+		            	Relation.setPrimaryContact( contact );	
+						RelationshipPanel.drawTree( );
+						UnlinkedPanel.drawUnlinkedContacts( );
+		            }	
+		            public void mouseEntered( MouseEvent e )
+		            {
+						 timer.stop();
+		            }		
+					public void mouseExited( MouseEvent e )
+		            {
+						 timer.restart();			 
+		            }
+				});
+			}
+			extendedDetails.add( pinButton );
 		}
-		pinButton.setEnabled( !contact.isPrimary );
-		if( pinButton.isEnabled() )
-		{
-			pinButton.addMouseListener( new ClickListener()  
-			{  				
-	            public void singleClick( MouseEvent e )
-	            {
-					timer.stop();
-					RelationshipPanel.setSelectedContactId( contact.id );
-	            	Relation.setPrimaryContact( contact );	
-					RelationshipPanel.drawTree( );
-	            }			
-			});
-		}
-		extendedDetails.add( pinButton );
 		
 		return extendedDetails;
 	}
@@ -390,3 +385,4 @@ public class Block extends JPanel
 		return field;
 	}
 }
+

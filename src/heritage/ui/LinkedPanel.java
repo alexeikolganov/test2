@@ -5,6 +5,7 @@ import heritage.config.Config;
 import heritage.relationship.RelationshipPanel;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -28,16 +29,19 @@ public class LinkedPanel
 				( SYS_PANEL_HEIGHT );		// высота нижней панели с отступами
 				
 		JPanel linkedPanel = null;
-		try {
+		try 
+		{
 			linkedPanel = RelationshipPanel.createPanel( w, h );
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} //new JPanel( );
+		} 
+		catch( IOException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to create Relationship Panel within Linked Panel: ", ex );
+		} 
+
 		linkedPanel.setBounds( x, y, w, h );
 		linkedPanel.setBackground( ApplicationColors.LINKED_PANEL_BACKGROUND_COLOR );
 		linkedPanel.setBorder( BorderFactory.createMatteBorder( 0, 1, 0, 1, ApplicationColors.FIELD_BORDER_UNFOCUSED ) );
-		//linkedPanel.setLayout( null );
+		linkedPanel.setLayout( null );
 				
 		log.info( "Linked panel is drawn..." );
 		

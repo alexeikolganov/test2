@@ -1,6 +1,5 @@
 package heritage.ui.block;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -9,18 +8,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-import heritage.config.ApplicationColors;
 import heritage.config.Config;
 import heritage.contact.Contact;
 import heritage.contact.ContactRelationship;
-import heritage.listener.ClickListener;
+import heritage.controls.buttons.HMenuButton;
 import heritage.ui.modal.ModalEdit;
 
 /**
@@ -35,11 +32,9 @@ public class AddContactBlock extends JLayeredPane
 	private static final int BLOCK_HEIGHT 			= Integer.parseInt( Config.getItem( "block_height" ) );
 
 	private final static int TITLE_FONT_SIZE		= Integer.parseInt( Config.getItem( "title_font_size" ) );
-	private final static int TEXT_FONT_SIZE			= Integer.parseInt( Config.getItem( "menu_button_font_size" ) );
 	private final static String TEXT_FONT_NAME 		= Config.getItem( "app_font_name" );
 	
 	private final static Font LARGE_FONT 			= new Font( TEXT_FONT_NAME, Font.BOLD, TITLE_FONT_SIZE );
-	private final static Font MIDDLE_FONT 			= new Font( TEXT_FONT_NAME, Font.PLAIN, TEXT_FONT_SIZE );
 	
 	private Timer timer;
 	
@@ -104,81 +99,31 @@ public class AddContactBlock extends JLayeredPane
 		add( menuPanel, 2, 1 );
 		
 		// 2.а. Меню "Добавить новый контакт"
-		JLabel addNewLbl = new JLabel( Config.getItem( "add_new_contact" ) );
-		addNewLbl.setSize( new Dimension( BLOCK_WIDTH, BLOCK_HEIGHT / 2 ) );
-		addNewLbl.setHorizontalAlignment( SwingConstants.CENTER );
-		addNewLbl.setLocation(0,0);
-		addNewLbl.setFont( MIDDLE_FONT );
-		addNewLbl.setBorder( BorderFactory.createMatteBorder( 0, 0, 2, 0, ApplicationColors.FIELD_BORDER_UNFOCUSED ) );
-		addNewLbl.setBackground( ApplicationColors.PANEL_BACKGROUND_COLOR );
-		addNewLbl.setForeground( ApplicationColors.APP_TEXT_COLOR);
-		addNewLbl.setOpaque( true );
-		menuPanel.add( addNewLbl );
-		
-		// при одиночном клике на пункт меню прячем меню целиком
-		// при двойном клике вызываем форму создания контакта
-		addNewLbl.addMouseListener( new ClickListener()  
-		{  
-			private final Color ROLLOVER_COLOR 	 = new Color( 200, 200, 200 );
-			private final Color BACKGROUND_COLOR = ApplicationColors.PANEL_BACKGROUND_COLOR;
+		final String BUTTON_LABEL = Config.getItem( "new_contact_label" );
+		HMenuButton newAccountButton = new HMenuButton( BUTTON_LABEL, "icons/plus.png" );
+		newAccountButton.setBounds( 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT / 2 );
 			
-			public void mouseEntered( MouseEvent e )
+		newAccountButton.addActionListener( new ActionListener() 
+		{
+			public void actionPerformed( ActionEvent ev ) 		
 			{
-				JComponent panel = (JComponent) e.getSource();
-				panel.setBackground( ROLLOVER_COLOR );
-			}
-			
-			public void mouseExited( MouseEvent e )
-			{
-				JComponent panel = (JComponent) e.getSource();
-				panel.setBackground( BACKGROUND_COLOR );
-			}
-				
-			public void singleClick( MouseEvent e )
-            {
-				/*final AddContactBlock block = (AddContactBlock)e.getComponent().getParent().getParent();
-				if( block.menuPanel.getHeight()> 0 )
-				 {
-					timer = new Timer( 1, new ActionListener() 
-			        {
-						public void actionPerformed( ActionEvent e ) 
-						{
-							// collapse
-							block.menuPanel.setSize( BLOCK_WIDTH , block.menuPanel.getHeight() - 10 );
-							block.getParent().getParent().revalidate();
-							block.getParent().getParent().repaint();
-			                if( block.menuPanel.getHeight() <= 0 ) 
-			                {
-			                	((Timer) e.getSource()).stop( );  
-			                	block.menuPanel.setSize( BLOCK_WIDTH, 0 );
-			                } 
-						}
-			         });
-					 timer.start(); 
-				 }*/
-				new ModalEdit( contact.firstName + " " + contact.lastName, contact, reln );
-            }
-
-            public void doubleClick( MouseEvent e )
-            {
-            	new ModalEdit( contact.firstName + " " + contact.lastName, contact );
-            }
-			
-			
+				Contact temp = new Contact( "", true );
+				new ModalEdit( BUTTON_LABEL, temp );				
+			}			
 		});
+		menuPanel.add( newAccountButton );
 		
 		// 2.б. Меню "Выбрать существующий контакт"
-		JLabel addExistingLbl = new JLabel( Config.getItem( "add_existing_contact" ) );
-		addExistingLbl.setSize( new Dimension( BLOCK_WIDTH, BLOCK_HEIGHT / 2 ) );
-		addExistingLbl.setHorizontalAlignment( SwingConstants.CENTER );
-		addExistingLbl.setLocation(0,BLOCK_HEIGHT / 2 );
-		addExistingLbl.setFont( MIDDLE_FONT );
-		addExistingLbl.setBackground( ApplicationColors.PANEL_BACKGROUND_COLOR );
-		addExistingLbl.setForeground( ApplicationColors.APP_TEXT_COLOR);
-		addExistingLbl.setOpaque( true );
+		HMenuButton addExistingLbl = new HMenuButton( Config.getItem( "existing_contact" ), "icons/link.png" );
+		addExistingLbl.setBounds( 0, BLOCK_HEIGHT / 2, BLOCK_WIDTH, BLOCK_HEIGHT / 2 );		
+		addExistingLbl.addActionListener( new ActionListener() 
+		{
+			public void actionPerformed( ActionEvent ev ) 		
+			{
+				//Contact temp = new Contact( "", true );
+				//new ModalEdit( Config.getItem( "add_existing_contact" ), temp );				
+			}		
+		});
 		menuPanel.add( addExistingLbl );
-
-	}
-	
-	
+	}	
 }

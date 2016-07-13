@@ -24,7 +24,9 @@ import javax.swing.border.Border;
  */
 public class HMenuButton extends JButton 
 {
-	private static final int FONT_SIZE	  		= Integer.parseInt( Config.getItem( "menu_button_font_size" ) );
+	public static final int FONT_SIZE	  		= Integer.parseInt( Config.getItem( "menu_button_font_size" ) );
+	public static final int ICON_SIZE	  		= Integer.parseInt( Config.getItem( "block_button_size" ) );
+	
 	private static final String FONT_NAME		= Config.getItem( "app_font_name" );
 	
 	private static Logger log = Logger.getLogger(TopPanel.class.getName());
@@ -55,8 +57,12 @@ public class HMenuButton extends JButton
 		super.setContentAreaFilled( false );
 		try 
 		{
+			//Image img = ImageIO.read( new FileInputStream( imagePath ) );
+			//setIcon( new ImageIcon(img) );
+			
 			Image img = ImageIO.read( new FileInputStream( imagePath ) );
-			setIcon( new ImageIcon(img) );
+			Image newimg = img.getScaledInstance( ICON_SIZE, ICON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
+			setIcon( new ImageIcon(newimg) );
 		} 
 		catch( IOException ex ) 
 		{

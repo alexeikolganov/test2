@@ -17,14 +17,18 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class TopPanel 
 {
-	private final static int SYS_PANEL_HEIGHT 		= Integer.parseInt( Config.getItem( "sys_panel_height" ) );
-	private final static int UNLINKED_PANEL_WIDTH 	= Integer.parseInt( Config.getItem( "unlinked_panel_width" ) );
-		
+	private final static int SYS_PANEL_HEIGHT 		= Integer.parseInt( Config.getItem( "sys_panel_height" ) );		
 	public static JLayeredPane topPanel;
+	
+	private static final String ICONS_PATH  = Config.getItem( "icons_path" ) + "/";
+	private static final String LEFT_ARROW  = ICONS_PATH + "left-arrow.png";
+	private static final String RIGHT_ARROW = ICONS_PATH + "right-arrow.png";
+	private static final String PLUS 		= ICONS_PATH + "plus.png";
 	
 	private static Logger log = Logger.getLogger(TopPanel.class.getName());
 	
@@ -57,7 +61,7 @@ public class TopPanel
 	private static void createNewAccountButton( )
 	{
 		final String BUTTON_LABEL = Config.getItem( "new_contact_label" );
-		HMenuButton newAccountButton = new HMenuButton( BUTTON_LABEL, "icons/plus_15.png" );
+		HMenuButton newAccountButton = new HMenuButton( BUTTON_LABEL, PLUS );
 		newAccountButton.setBounds( 10, 0, 150, SYS_PANEL_HEIGHT );
 			
 		newAccountButton.addActionListener( new ActionListener() 
@@ -80,12 +84,17 @@ public class TopPanel
 		
 		try 
 		{
-			Image img = ImageIO.read( new FileInputStream("icons/left-arrow_15.png") );
-			unlinkedContactsButton.setIcon( new ImageIcon(img) );
+			//Image img = ImageIO.read( new FileInputStream("icons/left-arrow.png") );
+			//unlinkedContactsButton.setIcon( new ImageIcon(img) );
+			
+			Image img = ImageIO.read( new FileInputStream( LEFT_ARROW ) );
+			Image newimg = img.getScaledInstance( HMenuButton.ICON_SIZE, HMenuButton.ICON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
+			unlinkedContactsButton.setIcon( new ImageIcon(newimg) );
+			
 		} 
 		catch( IOException ex ) 
 		{
-			log.log( Level.SEVERE, "Failed to find 'left-arrow_15.png': ", ex );
+			log.log( Level.SEVERE, "Failed to find '" + LEFT_ARROW + "': ", ex );
 		}
 		
 		unlinkedContactsButton.addActionListener( new ActionListener() 
@@ -94,11 +103,11 @@ public class TopPanel
 			{		
 				HMenuButton toggler = (HMenuButton)ev.getSource();
 				
-				final JLayeredPane unlinkedPane = (JLayeredPane) HeritageUI.getComponentByName("unlinked");
-				String icon = "icons/left-arrow_15.png";
+				final JPanel unlinkedPane = (JPanel) HeritageUI.getComponentByName("unlinked");
+				String icon = LEFT_ARROW;
 				if( unlinkedPane.getX() >= frameWidth )
 				{
-					icon = "icons/right-arrow_15.png";
+					icon = RIGHT_ARROW;
 					//System.out.println( "1. x="+unlinkedPane.getX() +", w="+ frameWidth);
 					new Timer( 1, new ActionListener() 
 			        {
@@ -106,7 +115,7 @@ public class TopPanel
 						{
 							// move to the left
 							unlinkedPane.setLocation( unlinkedPane.getX() - 1, SYS_PANEL_HEIGHT*2 );
-			                if( unlinkedPane.getX() == frameWidth - UNLINKED_PANEL_WIDTH ) 
+			                if( unlinkedPane.getX() == frameWidth - UnlinkedPanel.UNLINKED_PANEL_WIDTH ) 
 			                {
 			                	((Timer) e.getSource()).stop( );
 			                    
@@ -116,7 +125,7 @@ public class TopPanel
 				}
 				else
 				{
-					icon = "icons/left-arrow_15.png";
+					icon = LEFT_ARROW;
 					//System.out.println( "3. x="+unlinkedPane.getX() +", w="+ frameWidth);
 					new Timer( 1, new ActionListener() 
 		            {
@@ -135,8 +144,12 @@ public class TopPanel
 				
 				try 
 				{
-					Image img = ImageIO.read( new FileInputStream(icon) );
-					toggler.setIcon( new ImageIcon(img) );
+					//Image img = ImageIO.read( new FileInputStream(icon) );
+					//toggler.setIcon( new ImageIcon(img) );
+					
+					Image img = ImageIO.read( new FileInputStream( icon ) );
+					Image newimg = img.getScaledInstance( HMenuButton.ICON_SIZE, HMenuButton.ICON_SIZE,  java.awt.Image.SCALE_SMOOTH ) ;
+					toggler.setIcon( new ImageIcon(newimg) );
 				} 
 				catch( IOException ex ) 
 				{

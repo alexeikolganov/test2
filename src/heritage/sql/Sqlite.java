@@ -76,7 +76,7 @@ public class Sqlite
 			ResultSet rs = stmt.executeQuery( query );
 			int columnCount = rs.getMetaData().getColumnCount();
 			
-			while(rs.next())
+			while( rs.next() )
 			{
 				String[] row = new String[columnCount];
 			    for (int i=0; i <columnCount ; i++)
@@ -91,8 +91,7 @@ public class Sqlite
 			log.log( Level.SEVERE, "Failed to select data from DB using '" + query + "': ", ex );
 		}
 		
-		disconnect();
-			
+		disconnect();		
 		return result;
 
 	}
@@ -107,10 +106,10 @@ public class Sqlite
 	    try 
 	    {
 	    	stmt = c.createStatement();
-	    	rs = stmt.executeQuery( query );
-	    	while ( rs.next() ) 
+	    	rs   = stmt.executeQuery( query );
+	    	while( rs.next() ) 
 			{
-				contacts.add( buildContact( rs, true ) );		
+				contacts.add( buildContact( rs ) );		
 			}
 	    	rs.close();
 	    	stmt.close();
@@ -121,6 +120,32 @@ public class Sqlite
 	    }
 	    disconnect();
 	    return contacts;
+	}
+	
+	public static int getContactsCount( String query )
+	{
+		connect();
+		int count = 0;
+
+		Statement stmt = null;
+	    ResultSet rs   = null;
+	    try 
+	    {
+	    	stmt = c.createStatement();
+	    	rs   = stmt.executeQuery( query );
+	    	while( rs.next() ) 
+			{
+	    		count = rs.getInt( "cnt" );	
+			}
+	    	rs.close();
+	    	stmt.close();
+	    } 
+	    catch ( Exception ex ) 
+	    {
+	    	log.log( Level.SEVERE, "Failed to get contacts count from DB using '" + query + "': ", ex );
+	    }
+	    disconnect();
+	    return count;
 	}
 	
 	public static Contact getSelectedContact( String query )
@@ -137,7 +162,7 @@ public class Sqlite
 	    	
 	    	while ( rs.next() ) 
 			{
-				contact = buildContact( rs, false );			
+				contact = buildContact( rs );			
 			}
 	    	rs.close();
 	    	stmt.close();
@@ -173,7 +198,8 @@ public class Sqlite
 					"`contact_nationality`," +
 					"`contact_is_dead`," +
 					"`contact_avatar`," +
-					"`contact_maiden_name`" +
+					"`contact_maiden_name`," + 
+					"`contact_is_primary`" +
 					") VALUES (" +
 					"?," +
 					"?," +
@@ -186,8 +212,8 @@ public class Sqlite
 					"?," +
 					"?," +
 					"?," +
-					"?" +
-					");", Statement.RETURN_GENERATED_KEYS );
+					"?," +
+					"CASE WHEN ( SELECT count(*) FROM `contacts` ) > 0 THEN 0 ELSE 1 END );", Statement.RETURN_GENERATED_KEYS );
 			stmt.setString( 1,  ( contact.firstName == null ) 		? "" : contact.firstName );
 			stmt.setString( 2,  ( contact.lastName == null ) 		? "" : contact.lastName );
 			stmt.setString( 3,  ( contact.gender ) 					? "M" : "F" );
@@ -476,7 +502,7 @@ public class Sqlite
 		disconnect();
 	}
 	
-	private static Contact buildContact( ResultSet rs, boolean statusRequired )
+	private static Contact buildContact( ResultSet rs )
 	{
 		Contact contact = null;
 		try 
@@ -499,7 +525,7 @@ public class Sqlite
 			boolean isDead 			= ( rs.getString( "contact_is_dead" ) != null && rs.getString( "contact_is_dead" ).equals("0") ) ? false : true;
 			boolean isPrimary 		= ( rs.getString( "contact_is_primary" ) != null && rs.getString( "contact_is_primary" ).equals("0") ) ? false : true;
 			
-			String status			= (statusRequired) ?  ( rs.getString( "lookup_value" ) == null ) ? "" : rs.getString( "lookup_value" ) : "";
+			String status			= ( columnExists( rs, "lookup_value") ) ?  ( rs.getString( "lookup_value" ) == null ) ? "" : rs.getString( "lookup_value" ) : "";
 			String avatar			= ( rs.getString( "contact_avatar" ) == null || rs.getString( "contact_avatar" ).isEmpty() ) ? ( gender ? (Config.getItem( "icons_path" ) + "/" + Config.getItem( "no_avatar_man" )) : (Config.getItem( "icons_path" ) + "/" + Config.getItem( "no_avatar_woman" )) ) : rs.getString( "contact_avatar" );
 			
 			contact = new Contact( contactId, firstName, lastName, maidenName, gender, nationality, dateOfBirth, dateOfDeath, placeOfBirth, placeOfLiving, placeOfDeath, isDead, avatar, notes, lifeline, status, isPrimary );
@@ -509,5 +535,28 @@ public class Sqlite
 			log.log( Level.SEVERE, "Failed to build contact from DB using: ", ex );
 		}
 		return contact;
+	}
+	
+	private static boolean columnExists( ResultSet rs, String columnName )
+	{
+		ResultSetMetaData meta;
+		int numCol;
+		try 
+		{
+			meta = rs.getMetaData();
+			numCol = meta.getColumnCount();
+			for (int i = 1; i < numCol+1; i++) 
+			{
+			    if( meta.getColumnName(i).equals( columnName ) )
+			    {
+			    	return true;
+			    }
+			}
+		} 
+		catch( SQLException ex ) 
+		{
+			log.log( Level.SEVERE, "Failed to find given column in the result set: ", ex );
+		}
+		return false;
 	}
 }

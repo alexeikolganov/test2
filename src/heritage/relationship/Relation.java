@@ -8,6 +8,35 @@ import heritage.sql.Sqlite;
 
 public class Relation 
 {	
+	public static int getContactsCount( )
+	{
+		String query = 	"SELECT count(*) AS cnt " +
+						"FROM contacts;";	
+		int count = Sqlite.getContactsCount( query );
+		return count;
+	}
+	
+	public static int getContactsCountLinked( )
+	{
+		String query = 	"SELECT count(*)  AS cnt " +
+						"FROM contacts " +
+						"WHERE contacts.contact_id IN " +
+						"( SELECT object_contact_id FROM contact_reln UNION SELECT subject_contact_id FROM contact_reln );"	;	
+		int count = Sqlite.getContactsCount( query );
+		return count;
+	}
+	
+	public static int getContactsCountUnlinked( )
+	{
+		String query = 	"SELECT count(*)  AS cnt " +
+						"FROM contacts " +
+						"WHERE contacts.contact_is_primary = 0 " +
+						"AND contacts.contact_id NOT IN " +
+						"( SELECT object_contact_id FROM contact_reln UNION SELECT subject_contact_id FROM contact_reln );"	;	
+		int count = Sqlite.getContactsCount( query );
+		return count;
+	}
+	
 	public static Contact getContact( int contactId )
 	{
 		String query =  "SELECT " +
@@ -23,7 +52,7 @@ public class Relation
 						getFieldSet( ) +
 						"WHERE contacts.contact_is_primary = 1;";
 		Contact contact = Sqlite.getSelectedContact( query );	
-		return contact.id;
+		return ( contact != null ) ? contact.id : -1;
 	}
 	
 	public static void setPrimaryContact( Contact contact )
@@ -96,14 +125,32 @@ public class Relation
 		return getRelatedContacts( contactId, "3, 11" );
 	}
 	
+	public static List<Contact> getParents( int contactId )
+	{
+		System.out.println("getting parents");
+		return getRelatedContacts( contactId, "1, 2" );
+	}
+	
 	public static Contact getMother( int contactId )
 	{		
 		return getRelatedContact( contactId, "1" );
 	}
+	
 	public static Contact getFather( int contactId )
 	{		
 		Contact contact = getRelatedContact( contactId, "2" );
 		return contact;
+	}
+	
+	public static List<Contact> getUnlinkedContacts( )
+	{
+		String query = 	"SELECT " +
+						getFieldSet( ) +
+						"WHERE contacts.contact_is_primary = 0 " +
+						"AND contacts.contact_id NOT IN " +
+						"( SELECT object_contact_id FROM contact_reln UNION SELECT subject_contact_id FROM contact_reln );"	;	
+		List<Contact> contacts = Sqlite.getContacts( query );
+		return contacts;
 	}
 	
 	private static Contact getRelatedContact( int contactId, String lookupIds )
@@ -121,6 +168,7 @@ public class Relation
 		return contacts;
 	}
 	
+
 	private static String prepareQuery( int contactId, String lookupIds )
 	{
 		return "SELECT " +

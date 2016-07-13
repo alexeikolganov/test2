@@ -43,6 +43,8 @@ public class Contact
 	
 	public String avatar			= "";
 	
+	public boolean isLinked			= true; // by default contact is supposed to be linked with other contacts
+	
 	public double x;
 	public double y;
 	public double lineY;
