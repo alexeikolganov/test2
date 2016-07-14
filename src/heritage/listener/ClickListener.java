@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import heritage.config.ApplicationColors;
-
 public class ClickListener extends MouseAdapter implements ActionListener
 {
     private final static int clickInterval = (Integer)Toolkit.getDefaultToolkit().

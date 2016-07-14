@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -34,7 +35,7 @@ public class RelationshipPanel
 	
 	private static int N0 = -1;
 
-	private static JPanel innerPanel;
+	public static JLayeredPane innerPanel;
 	private static JPanel mainPanel;
 	private static JScrollPane scrollFrame;
 	
@@ -50,10 +51,12 @@ public class RelationshipPanel
 		
 		mainPanel = new JPanel();
 		mainPanel.setPreferredSize( new Dimension( WIDTH, HEIGHT ) );
+		mainPanel.setBackground( ApplicationColors.LINKED_PANEL_BACKGROUND_COLOR );
 		//mainPanel.setLayout( null );
 		
-		innerPanel = new JPanel( );
+		innerPanel = new JLayeredPane( );
 		innerPanel.setBackground( ApplicationColors.LINKED_PANEL_BACKGROUND_COLOR );
+		innerPanel.setOpaque(true);
         innerPanel.setLayout( null );
 
         scrollFrame = new JScrollPane( innerPanel );
@@ -199,14 +202,7 @@ public class RelationshipPanel
 	
 	private static void drawContact( Contact contact )
 	{
-		if( contact.id > 0 )
-		{
-			innerPanel.add( new Block( contact, ( contact.id == selectedContactId ) ) );
-		}
-		else
-		{	
-			innerPanel.add( new AddContactBlock( contact, null ) );
-		}
+		drawContact( contact, null );
 	}
 	
 	private static void linkContacts( Contact c1, Contact c2 )

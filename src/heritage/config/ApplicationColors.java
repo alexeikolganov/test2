@@ -55,4 +55,7 @@ public class ApplicationColors
 	
 	public static final Color MAN_COLOR 						= new Color( 129, 218, 245 );
 	public static final Color WOMAN_COLOR 						= new Color( 245, 169, 188 );
+	
+	public static final Color MAN_COLOR_HOVER					= new Color( 104, 193, 220 );
+	public static final Color WOMAN_COLOR_HOVER				 	= new Color( 220, 144, 163 );
 }

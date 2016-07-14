@@ -59,6 +59,7 @@ public class Block extends JPanel
 	private final static Color BORDER_COLOR			= new Color( 150, 150, 150 );
 	
 	private Timer timer;
+	public ClickListener click;
 	
 	private Contact contact;
 	
@@ -98,65 +99,10 @@ public class Block extends JPanel
 		add( setDetails( ) );
 		add( setExtendedDetails() );
 		
-		addMouseListener( new ClickListener()  
-		{  	
-			public void mouseEntered( MouseEvent e )
-            {
-				final Block block = (Block)e.getComponent();
-		    	timer = new Timer( 10, new ActionListener() 
-		        {
-					public void actionPerformed( ActionEvent e ) 
-					{
-						// expand
-						block.setSize( BLOCK_WIDTH , block.getHeight() + 5 );
-		                if( block.getHeight() >= BLOCK_MAX_HEIGHT ) 
-		                {
-		                	((Timer) e.getSource()).stop( );    
-		                	block.setSize( BLOCK_WIDTH , BLOCK_MAX_HEIGHT );
-		                }
-					}
-		         });
-				 timer.setInitialDelay( 250 );
-				 timer.start();
-            }
-			
-			public void mouseExited( MouseEvent e )
-            {
-				final Block block = (Block)e.getComponent();
-		        timer = new Timer( 1, new ActionListener() 
-				{
-					public void actionPerformed( ActionEvent e ) 
-					{
-						// collapse
-						block.setSize( BLOCK_WIDTH , block.getHeight() - 20 );
-						block.getParent().getParent().revalidate();
-						block.getParent().getParent().repaint();
-				        if( block.getHeight() <= BLOCK_HEIGHT ) 
-				        {
-				        	((Timer) e.getSource()).stop( );
-				        	block.setSize( BLOCK_WIDTH , BLOCK_HEIGHT );
-				        } 
-					}
-				 });
-		         timer.setInitialDelay( 2000 );
-				 timer.start();			 
-            }
-			
-            public void doubleClick( MouseEvent e )
-            {
-            	new ModalEdit( contact.firstName + " " + contact.lastName, contact );
-            }	
-            
-            public void singleClick( MouseEvent e )
-            {
-				if( contact.isLinked )
-				{
-	            	timer.stop();
-					RelationshipPanel.setSelectedContactId( contact.id );
-					RelationshipPanel.drawTree( );
-				}
-            }	
-		});
+		click = createClickListener( );		
+		addMouseListener( click );
+		
+		log.info( "Contact " + contact.id + " is set" );
 	}
 	
 	/**
@@ -206,8 +152,9 @@ public class Block extends JPanel
 		
 		JPanel detailPanel = new JPanel( );
 		detailPanel.setBounds( BLOCK_HEIGHT, BORDER_THICKNESS, textWidth, BLOCK_HEIGHT - BORDER_THICKNESS * 2 );
-		detailPanel.setBackground( blockColor );
+		//detailPanel.setBackground( blockColor );
 		detailPanel.setLayout( null );
+		detailPanel.setOpaque( false );
 
 		int rowHeight = (int) ( BLOCK_HEIGHT - BORDER_THICKNESS * 2 ) / 4;
 				
@@ -243,7 +190,7 @@ public class Block extends JPanel
 		extendedDetails.setLayout( null );
 		extendedDetails.setBackground( ApplicationColors.BUTTON_MENU_BACKGROUND_COLOR );
 		
-		int buttonsNumber = ( contact.isLinked ) ? 5 : 4;
+		int buttonsNumber = ( contact.isLinked ) ? 5 : 3;
 		int x = BLOCK_WIDTH - BORDER_THICKNESS * 2 - ( BLOCK_BUTTON_SIZE + 4 ) * buttonsNumber;
 		
 		// read-only details
@@ -303,38 +250,38 @@ public class Block extends JPanel
 		});
 		extendedDetails.add( deleteButton );
 		
-		x += BLOCK_BUTTON_SIZE + 4;
-		
-		// unlink contact
-		HMenuButton unlinkButton = new HMenuButton( "", "icons/unlink.png" );
-		unlinkButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
-		unlinkButton.addMouseListener( new ClickListener()  
-		{  				
-			public void singleClick( MouseEvent e )
-            {
-            	timer.stop();
-				HOptionPane pane = new HOptionPane( null, Config.getItem( "warning" ), Config.getItem( "warning_delete_relns" ), HOptionPane.OptionType.OK_CANCEL, 300, 160 );
-				if( pane.status == HOptionPane.Status.OK )
-				{				
-					Relation.deleteRelationship( contact );
-					RelationshipPanel.drawTree( );	
-					UnlinkedPanel.drawUnlinkedContacts( );
-				}
-				timer.restart();
-            }	
-			public void mouseEntered( MouseEvent e )
-            {
-				 timer.stop();
-            }		
-			public void mouseExited( MouseEvent e )
-            {
-				 timer.restart();			 
-            }
-		});
-		extendedDetails.add( unlinkButton );
-		
 		if( contact.isLinked )
 		{
+			x += BLOCK_BUTTON_SIZE + 4;
+			
+			// unlink contact
+			HMenuButton unlinkButton = new HMenuButton( "", "icons/unlink.png" );
+			unlinkButton.setBounds( x, 0, BLOCK_BUTTON_SIZE + 4, BLOCK_BUTTON_SIZE + 4 );
+			unlinkButton.addMouseListener( new ClickListener()  
+			{  				
+				public void singleClick( MouseEvent e )
+	            {
+	            	timer.stop();
+					HOptionPane pane = new HOptionPane( null, Config.getItem( "warning" ), Config.getItem( "warning_delete_relns" ), HOptionPane.OptionType.OK_CANCEL, 300, 160 );
+					if( pane.status == HOptionPane.Status.OK )
+					{				
+						Relation.deleteRelationship( contact );
+						RelationshipPanel.drawTree( );	
+						UnlinkedPanel.drawUnlinkedContacts( );
+					}
+					timer.restart();
+	            }	
+				public void mouseEntered( MouseEvent e )
+	            {
+					 timer.stop();
+	            }		
+				public void mouseExited( MouseEvent e )
+	            {
+					 timer.restart();			 
+	            }
+			});
+			extendedDetails.add( unlinkButton );
+		
 			x += BLOCK_BUTTON_SIZE + 4;
 			
 			HMenuButton pinButton = new HMenuButton( "", "icons/pin.png" );
@@ -377,12 +324,75 @@ public class Block extends JPanel
 	 * @param font - רנטפע
 	 * @return JLabel
 	 */
-	private static JLabel createLabel( int x, int y, int w, int h, String text, Font font )
+	private JLabel createLabel( int x, int y, int w, int h, String text, Font font )
 	{
 		JLabel field = new JLabel( text );
 		field.setBounds( x, y, w, h );
 		field.setFont( font );
 		return field;
+	}
+	
+	private ClickListener createClickListener()
+	{
+		return new ClickListener()  
+		{  	
+			public void mouseEntered( MouseEvent e )
+            {
+				final Block block = (Block)e.getComponent();
+		    	timer = new Timer( 10, new ActionListener() 
+		        {
+					public void actionPerformed( ActionEvent e ) 
+					{
+						// expand
+						block.setSize( BLOCK_WIDTH , block.getHeight() + 5 );
+		                if( block.getHeight() >= BLOCK_MAX_HEIGHT ) 
+		                {
+		                	((Timer) e.getSource()).stop( );    
+		                	block.setSize( BLOCK_WIDTH , BLOCK_MAX_HEIGHT );
+		                }
+					}
+		         });
+				 timer.setInitialDelay( 250 );
+				 timer.start();
+            }
+			
+			public void mouseExited( MouseEvent e )
+            {
+				final Block block = (Block)e.getComponent();
+		        timer = new Timer( 1, new ActionListener() 
+				{
+					public void actionPerformed( ActionEvent e ) 
+					{
+						// collapse
+						block.setSize( BLOCK_WIDTH , block.getHeight() - 20 );
+						block.getParent().getParent().revalidate();
+						block.getParent().getParent().repaint();
+				        if( block.getHeight() <= BLOCK_HEIGHT ) 
+				        {
+				        	((Timer) e.getSource()).stop( );
+				        	block.setSize( BLOCK_WIDTH , BLOCK_HEIGHT );
+				        } 
+					}
+				 });
+		         timer.setInitialDelay( 2000 );
+				 timer.start();			 
+            }
+			
+            public void doubleClick( MouseEvent e )
+            {
+            	new ModalEdit( contact.firstName + " " + contact.lastName, contact );
+            }	
+            
+            public void singleClick( MouseEvent e )
+            {
+				if( contact.isLinked )
+				{
+	            	timer.stop();
+					RelationshipPanel.setSelectedContactId( contact.id );
+					RelationshipPanel.drawTree( );
+				}
+            }	
+		};
 	}
 }
 

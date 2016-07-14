@@ -514,7 +514,6 @@ public class ModalEdit extends Modal
 		mainPanel.add( ModalComponents.buildLabel( x * 2, y, labelWidth, FIELD_HEIGHT, Config.getItem( "default_dead" ) ) );
 		
 		dead = ModalComponents.buildCheckBox( labelWidth + x, y, FIELD_HEIGHT, FIELD_HEIGHT );
-		System.out.println(contact.isDead);
 		dead.setSelected( contact.isDead );
 		dead.addItemListener(new ItemListener() 
 		{
@@ -684,6 +683,7 @@ public class ModalEdit extends Modal
 					populateContactDetails( );				
 					contact.id = Relation.insertContact( contact );
 					
+					System.out.println( reln );
 					if( reln != null )
 					{
 						for( ContactRelationship relationship : reln )
